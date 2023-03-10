@@ -20,8 +20,10 @@ public class TouchMovement : MonoBehaviour
     private Vector2 previousTouch2Position;
 
     private const int thresholdMovement = 10; //Maximum movement to be considered an accidental movement
+    private const int thresholdMovementTranslationY = 20; //Maximum movement to be considered an accidental movement (X Movement in YTranslation)
+    private const int thresholdMovementStationary = 1; //Maximum movement to be considered an accidental movement while stationary
     private const int necessaryMovement = 5; //Minimum movement to be considered a movement
-    private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
+    private const int necessaryAngle = 5; //Minimum angle to be considered a rotation
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
@@ -77,9 +79,14 @@ public class TouchMovement : MonoBehaviour
             case State.Checking:
                 if (stateCheckInterval == 0){
                     stateCheckInterval = stateCheckIntervalInitial;
-                    if (checkTranslationXZ()){
+                    if (checkTranslationXZ(initialTouch1Position)){
                         previousTouch1Position = Input.GetTouch(0).position;
                         return State.TranslationXZ;
+                    }
+                    else if (checkRotationY(initialTouch1Position, initialTouch2Position)){
+                        previousTouch1Position = Input.GetTouch(0).position;
+                        previousTouch2Position = Input.GetTouch(1).position;
+                        return State.RotationY;
                     }
                     else if (checkRotationX(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = Input.GetTouch(0).position;
@@ -96,11 +103,6 @@ public class TouchMovement : MonoBehaviour
                         previousTouch2Position = Input.GetTouch(1).position;
                         return State.TranslationY;
                     }
-                    else if (checkRotationY(initialTouch1Position, initialTouch2Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
-                        previousTouch2Position = Input.GetTouch(1).position;
-                        return State.RotationY;
-                    }
                     else{
                         return State.Idle;
                     }
@@ -110,7 +112,7 @@ public class TouchMovement : MonoBehaviour
                     return State.Checking;
                 }
             case State.TranslationXZ:
-                if (checkTranslationXZ()){
+                if (checkTranslationXZ(previousTouch1Position)){
                     Touch touch = Input.GetTouch(0);
 
                     Vector2 touchDistance = touch.position - previousTouch1Position;
@@ -220,9 +222,20 @@ public class TouchMovement : MonoBehaviour
 
 
 
-    bool checkTranslationXZ(){
+    bool checkTranslationXZ(Vector2 touch1Position){
         if (Input.touchCount == 1){
-            return true;
+            Touch touch = Input.GetTouch(0);
+            float touchDistance = Vector2.Distance(touch1Position, touch.position);
+            if (currentState == State.TranslationXZ){
+                if (touchDistance  > 0){
+                    return true;
+                }
+            }
+            else{
+                if (touchDistance >= necessaryMovement){
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -237,8 +250,15 @@ public class TouchMovement : MonoBehaviour
             float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
             float touch1Distance = Vector2.Distance(touch1Position, touch1.position);
             float touch2Distance = Vector2.Distance(touch2Position, touch2.position);
-            if ((touch1Distance <= thresholdMovement && touch2DistanceY >= necessaryMovement) || (touch2Distance <= thresholdMovement && touch1DistanceY >= necessaryMovement)){
-                return true;
+            if (currentState == State.TranslationY){
+                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= 0 && touch2DistanceX <= thresholdMovementTranslationY) || (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= 0 && touch1DistanceX <= thresholdMovementTranslationY)){
+                    return true;
+                }
+            }
+            else{
+                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= necessaryMovement && touch2DistanceX <= thresholdMovementTranslationY) || (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= necessaryMovement && touch1DistanceX <= thresholdMovementTranslationY)){
+                    return true;
+                }
             }
         }
         return false;
@@ -283,16 +303,20 @@ public class TouchMovement : MonoBehaviour
             //Calculate vector between current touch1 and current touch2 position
             Vector2 vector = touch2.position - touch1.position;
 
+            float touch1DistanceX = touch1Position.x - touch1.position.x;
+            float touch2DistanceX = touch2Position.x - touch2.position.x;
+            float touch1DistanceY = touch1Position.y - touch1.position.y;
+            float touch2DistanceY = touch2Position.y - touch2.position.y;
             float angle = Vector2.Angle(prevVector, vector);
 
             //Debug.Log(angle);
             if (currentState == State.RotationY){
-                if (Math.Abs(angle) >= 2){
+                if (Math.Abs(angle) >= 0 && (touch1DistanceX * touch2DistanceX < 0 || touch1DistanceY * touch2DistanceY < 0)){
                     return true;
                 }
             }
             else{
-                if (Math.Abs(angle) >= necessaryAngle){
+                if (Math.Abs(angle) >= necessaryAngle && (touch1DistanceX * touch2DistanceX < 0 || touch1DistanceY * touch2DistanceY < 0)){
                     return true;
                 }      
             }
