@@ -281,7 +281,7 @@ public class TouchMovement : MonoBehaviour
 
 
             if (currentState == State.RotationX){
-                if (touch1DistanceX <= thresholdMovement && touch2DistanceX <= thresholdMovement && touch1DistanceY >= 0 && touch2DistanceY >= 0){
+                if (touch1DistanceX <= thresholdMovement && touch2DistanceX <= thresholdMovement && touch1DistanceY > 0 && touch2DistanceY > 0){
                     return true;
                 }
             }
@@ -335,7 +335,7 @@ public class TouchMovement : MonoBehaviour
             float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
             
             if (currentState == State.RotationZ){
-                if (touch1DistanceX >= 0 && touch2DistanceX >= 0 && touch1DistanceY <= thresholdMovement && touch2DistanceY <= thresholdMovement){
+                if (touch1DistanceX > 0 && touch2DistanceX > 0 && touch1DistanceY <= thresholdMovement && touch2DistanceY <= thresholdMovement){
                     return true;
                 }
             }
