@@ -75,7 +75,6 @@ public class TouchMovement : MonoBehaviour
                 else{
                     return State.Idle;
                 }
-                break;
             case State.Checking:
                 if (stateCheckInterval == 0){
                     stateCheckInterval = stateCheckIntervalInitial;
@@ -126,7 +125,6 @@ public class TouchMovement : MonoBehaviour
                     thresholdError--;
                     return State.TranslationXZ;
                 }
-                break;
             case State.TranslationY:
                 if (checkTranslationY(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = Input.GetTouch(0);
@@ -145,7 +143,6 @@ public class TouchMovement : MonoBehaviour
                     thresholdError--;
                     return State.TranslationY;
                 }
-                break;
             case State.RotationX:
                 if (checkRotationX(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = Input.GetTouch(0);
@@ -164,7 +161,6 @@ public class TouchMovement : MonoBehaviour
                     thresholdError--;
                     return State.RotationX;
                 }
-                break;
             case State.RotationY:
                 if (checkRotationY(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = Input.GetTouch(0);
@@ -191,7 +187,6 @@ public class TouchMovement : MonoBehaviour
                     thresholdError--;
                     return State.RotationY;
                 }
-                break;
             case State.RotationZ:
                 if (checkRotationZ(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = Input.GetTouch(0);
@@ -210,12 +205,9 @@ public class TouchMovement : MonoBehaviour
                     thresholdError--;
                     return State.RotationZ;
                 }
-                break;
             default:
                 return currentState;
-                break;
         }
-        return currentState;
     }
 
 
