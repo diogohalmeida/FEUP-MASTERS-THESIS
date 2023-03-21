@@ -19,10 +19,10 @@ public class TouchMovement : MonoBehaviour
     private Vector2 previousTouch1Position;
     private Vector2 previousTouch2Position;
 
-    private const int thresholdMovement = 10; //Maximum movement to be considered an accidental movement
+    private const int thresholdMovement = 15; //Maximum movement to be considered an accidental movement
     private const int thresholdMovementTranslationY = 20; //Maximum movement to be considered an accidental movement (X Movement in YTranslation)
     private const int thresholdMovementStationary = 1; //Maximum movement to be considered an accidental movement while stationary
-    private const int necessaryMovement = 5; //Minimum movement to be considered a movement
+    private const int necessaryMovement = 10; //Minimum movement to be considered a movement
     private const int necessaryAngle = 5; //Minimum angle to be considered a rotation
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
