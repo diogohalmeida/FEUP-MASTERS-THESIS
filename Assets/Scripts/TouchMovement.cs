@@ -11,6 +11,7 @@ public class TouchMovement : MonoBehaviour
     //private enum Input{Touch1, Touch2X, Touch2Y, Touch2Circular, }
     private State currentState = State.Idle;
 
+    private int touchCount = 0;
     private Vector2 initialTouch1Position;
     private Vector2 initialTouch2Position;
     
@@ -20,11 +21,12 @@ public class TouchMovement : MonoBehaviour
     private Vector2 previousTouch1Position;
     private Vector2 previousTouch2Position;
 
-    private const int thresholdMovement = 50; //Maximum movement to be considered an accidental movement
-    private const int thresholdMovementTranslationY = 50; //Maximum movement to be considered an accidental movement (X Movement in YTranslation)
+    private const int thresholdMovement = 25; //Maximum movement to be considered an accidental movement
+    private const int thresholdMovementTranslationY = 25; //Maximum movement to be considered an accidental movement (X Movement in YTranslation)
     private const int thresholdMovementStationary = 5; //Maximum movement to be considered an accidental movement while stationary
-    private const int necessaryMovement = 10; //Minimum movement to be considered a movement
+    private const int necessaryMovement = 20; //Minimum movement to be considered a movement
     private const int necessaryAngle = 15; //Minimum angle to be considered a rotation
+    private const int necessaryMovementCircle = 25; //Minimum movement to be considered a rotation (Circular Movement)
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
@@ -64,6 +66,7 @@ public class TouchMovement : MonoBehaviour
                 if (Input.touchCount == 1){
                     Touch touch = Input.GetTouch(0);
                     initialTouch1Position = touch.position;
+                    touchCount = 1;
                     return State.Checking;
                 }
                 else if (Input.touchCount == 2){
@@ -71,12 +74,18 @@ public class TouchMovement : MonoBehaviour
                     Touch touch2 = Input.GetTouch(1);
                     initialTouch1Position = touch1.position;
                     initialTouch2Position = touch2.position;
+                    touchCount = 2;
                     return State.Checking; 
                 }
                 else{
                     return State.Idle;
                 }
             case State.Checking:
+                if (Input.touchCount != touchCount){
+                    thresholdError = thresholdErrorInitial;
+                    stateCheckInterval = stateCheckIntervalInitial;
+                    return State.Idle;
+                }
                 if (stateCheckInterval == 0){
                     stateCheckInterval = stateCheckIntervalInitial;
                     if (checkTranslationXZ(initialTouch1Position)){
@@ -141,7 +150,19 @@ public class TouchMovement : MonoBehaviour
                     return State.TranslationY;
                 }
                 else{
-                    thresholdError--;
+                    //thresholdError--;
+                    if (Input.touchCount == 0){
+                        thresholdError = 0;
+                    }
+                    else if (Input.touchCount == 2){
+                        Touch touch1 = Input.GetTouch(0);
+                        Touch touch2 = Input.GetTouch(1);
+                        previousTouch1Position = touch1.position;
+                        previousTouch2Position = touch2.position;
+                    }
+                    else if (Input.touchCount == 1){
+                        thresholdError--;
+                    }
                     return State.TranslationY;
                 }
             case State.RotationX:
@@ -168,6 +189,9 @@ public class TouchMovement : MonoBehaviour
                         Touch touch2 = Input.GetTouch(1);
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
+                    }
+                    else if (Input.touchCount == 1){
+                        thresholdError--;
                     }
                     return State.RotationX;
                 }
@@ -204,6 +228,9 @@ public class TouchMovement : MonoBehaviour
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
+                    else if (Input.touchCount == 1){
+                        thresholdError--;
+                    }
                     return State.RotationY;
                 }
             case State.RotationZ:
@@ -230,6 +257,9 @@ public class TouchMovement : MonoBehaviour
                         Touch touch2 = Input.GetTouch(1);
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
+                    }
+                    else if (Input.touchCount == 1){
+                        thresholdError--;
                     }
                     return State.RotationZ;
                 }
@@ -270,13 +300,14 @@ public class TouchMovement : MonoBehaviour
             float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
             float touch1Distance = Vector2.Distance(touch1Position, touch1.position);
             float touch2Distance = Vector2.Distance(touch2Position, touch2.position);
+            
             if (currentState == State.TranslationY){
-                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= 0 && touch2DistanceX <= thresholdMovementTranslationY) || (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= 0 && touch1DistanceX <= thresholdMovementTranslationY)){
+                if ((touch1Distance == 0 && touch2DistanceY >= 0 && touch2DistanceX <= thresholdMovementTranslationY) || (touch2Distance == 0 && touch1DistanceY >= 0 && touch1DistanceX <= thresholdMovementTranslationY)){
                     return true;
                 }
             }
             else{
-                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= necessaryMovement && touch2DistanceX <= thresholdMovementTranslationY) || (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= necessaryMovement && touch1DistanceX <= thresholdMovementTranslationY)){
+                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= necessaryMovement && touch2DistanceX <= thresholdMovementTranslationY)|| (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= necessaryMovement && touch1DistanceX <= thresholdMovementTranslationY)){
                     return true;
                 }
             }
@@ -292,13 +323,6 @@ public class TouchMovement : MonoBehaviour
             float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
             float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
             float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
-
-            //log distances
-            Debug.Log("touch1DistanceX: " + touch1DistanceX);
-            Debug.Log("touch2DistanceX: " + touch2DistanceX);
-            Debug.Log("touch1DistanceY: " + touch1DistanceY);
-            Debug.Log("touch2DistanceY: " + touch2DistanceY);
-
 
             if (currentState == State.RotationX){
                 if (touch1DistanceX <= thresholdMovement && touch2DistanceX <= thresholdMovement && touch1DistanceY > 0 && touch2DistanceY > 0){
@@ -323,20 +347,20 @@ public class TouchMovement : MonoBehaviour
             //Calculate vector between current touch1 and current touch2 position
             Vector2 vector = touch2.position - touch1.position;
 
-            float touch1DistanceX = touch1Position.x - touch1.position.x;
-            float touch2DistanceX = touch2Position.x - touch2.position.x;
-            float touch1DistanceY = touch1Position.y - touch1.position.y;
-            float touch2DistanceY = touch2Position.y - touch2.position.y;
+            float touch1DistanceX = Math.Abs(touch1Position.x - touch1.position.x);
+            float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
+            float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
+            float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
             float angle = Vector2.Angle(prevVector, vector);
 
             //Debug.Log(angle);
             if (currentState == State.RotationY){
-                if (Math.Abs(angle) >= 0 && (touch1DistanceX * touch2DistanceX < 0 || touch1DistanceY * touch2DistanceY < 0)){
+                if (Math.Abs(angle) >= 0){
                     return true;
                 }
             }
             else{
-                if (Math.Abs(angle) >= necessaryAngle && (touch1DistanceX * touch2DistanceX < 0 || touch1DistanceY * touch2DistanceY < 0)){
+                if (Math.Abs(angle) >= necessaryAngle && ((touch1DistanceX >= necessaryMovementCircle || touch2DistanceX >= necessaryMovementCircle) && (touch1DistanceY > necessaryMovement || touch2DistanceY > necessaryMovement))){
                     return true;
                 }      
             }
