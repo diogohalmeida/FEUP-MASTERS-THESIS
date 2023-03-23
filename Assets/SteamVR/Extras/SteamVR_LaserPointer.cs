@@ -48,6 +48,8 @@ namespace Valve.VR.Extras
             pointer.transform.localScale = new Vector3(thickness, thickness, 100f);
             pointer.transform.localPosition = new Vector3(0f, 0f, 50f);
             pointer.transform.localRotation = Quaternion.identity;
+            //add layer Default to the pointer
+            pointer.layer = 0;
             BoxCollider collider = pointer.GetComponent<BoxCollider>();
             if (addRigidBody)
             {
@@ -89,7 +91,7 @@ namespace Valve.VR.Extras
         }
 
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (!isActive)
             {
@@ -127,7 +129,7 @@ namespace Valve.VR.Extras
             {
                 previousContact = null;
             }
-            if (bHit && hit.distance < 100f)
+            if (bHit && hit.distance < 100f && hit.distance > 0.5f)
             {
                 dist = hit.distance;
             }

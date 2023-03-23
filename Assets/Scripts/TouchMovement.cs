@@ -54,7 +54,7 @@ public class TouchMovement : MonoBehaviour
         }
         currentState = stateCheck();
 
-        Debug.Log(currentState);    
+        //Debug.Log(currentState);    
         //Debug.Log("Error Threshold: " + thresholdError);
         //Debug.Log("Check Interval: " + stateCheckInterval);
     }
