@@ -24,15 +24,17 @@ public class TouchMovement : MonoBehaviour
     private const int thresholdMovement = 25; //Maximum movement to be considered an accidental movement
     private const int thresholdMovementTranslationY = 25; //Maximum movement to be considered an accidental movement (X Movement in YTranslation)
     private const int thresholdMovementStationary = 5; //Maximum movement to be considered an accidental movement while stationary
-    private const int necessaryMovement = 20; //Minimum movement to be considered a movement
+    private const int necessaryMovement = 15; //Minimum movement to be considered a movement
     private const int necessaryAngle = 15; //Minimum angle to be considered a rotation
     private const int necessaryMovementCircle = 25; //Minimum movement to be considered a rotation (Circular Movement)
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
 
-    private float speedModifierTranslations = 0.02f;
-    private float speedModifierRotations = 0.25f;
+    private float velocityModifierTranslations = 0.05f; //Fixed value to decrease translation velocity
+    private float velocityModifierRotations = 0.25f; //Fixed value to decrease rotation velocity
+
+    private float scalingConstant = 3000.0f;    //Used to calculate scaling factor (maximum velocity before scaling > 1)
 
     // Start is called before the first frame update
     void Start()
@@ -132,7 +134,12 @@ public class TouchMovement : MonoBehaviour
                     return State.TranslationXZ;
                 }
                 else{
-                    thresholdError--;
+                    if (Input.touchCount == 0){
+                        thresholdError = 0;
+                    }
+                    else{
+                        thresholdError--;
+                    }
                     return State.TranslationXZ;
                 }
             case State.TranslationY:
@@ -394,13 +401,25 @@ public class TouchMovement : MonoBehaviour
 
     void XZTranslation(Vector2 touchDistance){
         // transform.position = new Vector3(
-        //     transform.position.x + touchDistance.x * speedModifierTranslations, 
+        //     transform.position.x + touchDistance.x * velocityModifierTranslations, 
         //     transform.position.y, 
-        //     transform.position.z + touchDistance.y * speedModifierTranslations);
+        //     transform.position.z + touchDistance.y * velocityModifierTranslations);
+
+
+        //Debug.Log(touchDistance.magnitude);
+        //Debug.Log(Time.deltaTime);
+
+        float velocity = touchDistance.magnitude / Time.deltaTime;
+
+        float scalingFactor = velocity / scalingConstant;
+
+        Debug.Log(scalingFactor);
+
+       
 
         //Relative to frame
-        transform.position += referenceFrame.right * touchDistance.x * speedModifierTranslations;
-        transform.position += referenceFrame.forward * touchDistance.y * speedModifierTranslations;
+        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * scalingFactor;
+        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations * scalingFactor;
     }
 
 
@@ -408,13 +427,13 @@ public class TouchMovement : MonoBehaviour
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch1Distance.y * speedModifierTranslations, 
+                transform.position.y + touch1Distance.y * velocityModifierTranslations, 
                 transform.position.z);
         }
         else{
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch2Distance.y * speedModifierTranslations, 
+                transform.position.y + touch2Distance.y * velocityModifierTranslations, 
                 transform.position.z);
         }
         
@@ -422,10 +441,10 @@ public class TouchMovement : MonoBehaviour
 
 
     void XRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        //transform.Rotate(new Vector3((touch1Distance.y + touch2Distance.y)/2 * speedModifierRotations, 0, 0), Space.World);
+        //transform.Rotate(new Vector3((touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, 0, 0), Space.World);
 
         //Relative to frame
-        transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * speedModifierRotations, Space.World);    
+        transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, Space.World);    
     }
 
     void YRotation(float angle){
@@ -434,10 +453,10 @@ public class TouchMovement : MonoBehaviour
 
 
     void ZRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        //transform.Rotate(new Vector3(0, 0, -(touch1Distance.x + touch2Distance.x)/2 * speedModifierRotations), Space.World);
+        //transform.Rotate(new Vector3(0, 0, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations), Space.World);
 
         //Relative to frame
-        transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * speedModifierRotations, Space.World);
+        transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations, Space.World);
     }
 }
 
