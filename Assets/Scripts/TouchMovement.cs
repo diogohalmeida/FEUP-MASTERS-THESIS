@@ -56,7 +56,7 @@ public class TouchMovement : MonoBehaviour
         }
         currentState = stateCheck();
 
-        //Debug.Log(currentState);    
+        Debug.Log(currentState);    
         //Debug.Log("Error Threshold: " + thresholdError);
         //Debug.Log("Check Interval: " + stateCheckInterval);
     }
@@ -413,27 +413,33 @@ public class TouchMovement : MonoBehaviour
 
         float scalingFactor = velocity / scalingConstant;
 
-        Debug.Log(scalingFactor);
+        //Debug.Log(scalingFactor);
 
-       
+
+        Vector3 scalingFactorSize = GetComponent<Transform>().localScale;
+        //scalingFactorSize = Vector3.Scale(scalingFactorSize, transform.parent.localScale);
 
         //Relative to frame
-        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * scalingFactor;
-        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations * scalingFactor;
+        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * scalingFactor * scalingFactorSize.z;
+        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations * scalingFactor * scalingFactorSize.x;
     }
 
 
     void YTranslation(Vector2 touch1Distance, Vector2 touch2Distance){
+        Vector3 scalingFactorSize = GetComponent<Transform>().localScale;
+        //scalingFactorSize = Vector3.Scale(scalingFactorSize, transform.parent.localScale);
+
+
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch1Distance.y * velocityModifierTranslations, 
+                transform.position.y + touch1Distance.y * velocityModifierTranslations * scalingFactorSize.y, 
                 transform.position.z);
         }
         else{
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch2Distance.y * velocityModifierTranslations, 
+                transform.position.y + touch2Distance.y * velocityModifierTranslations * scalingFactorSize.y, 
                 transform.position.z);
         }
         
