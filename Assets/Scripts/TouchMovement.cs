@@ -167,7 +167,7 @@ public class TouchMovement : MonoBehaviour
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
-                    else if (Input.touchCount == 1){
+                    else{
                         thresholdError--;
                     }
                     return State.TranslationY;
@@ -197,7 +197,7 @@ public class TouchMovement : MonoBehaviour
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
-                    else if (Input.touchCount == 1){
+                    else{
                         thresholdError--;
                     }
                     return State.RotationX;
@@ -235,7 +235,7 @@ public class TouchMovement : MonoBehaviour
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
-                    else if (Input.touchCount == 1){
+                    else{
                         thresholdError--;
                     }
                     return State.RotationY;
@@ -265,7 +265,7 @@ public class TouchMovement : MonoBehaviour
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
-                    else if (Input.touchCount == 1){
+                    else{
                         thresholdError--;
                     }
                     return State.RotationZ;
