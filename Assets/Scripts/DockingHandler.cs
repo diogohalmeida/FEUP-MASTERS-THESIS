@@ -28,11 +28,18 @@ public class DockingHandler : MonoBehaviour
 
 
         //Log the variables below
-        Debug.Log("Distance from camera: " + (distance * 0.01f));
-        Debug.Log("Object distance " + (Vector3.Distance(dockingPointCenter, objectToDockCenter)));
+        // Debug.Log("Distance from camera: " + (distance * 0.01f));
+        // Debug.Log("Object distance " + (Vector3.Distance(dockingPointCenter, objectToDockCenter)));
 
-        //Check if distance between dockingPoint and objectToDock is less or equal than 10% of distance from camera to dockingPoint
-        if (Vector3.Distance(dockingPointCenter, objectToDockCenter) <= distance * 0.02f)
+        //Check if distance between dockingPoint and objectToDock is less or equal than 2% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 12 degrees
+        //Log angles
+        Debug.Log("Angle between dockingPoint and objectToDock fwd: " + Vector3.Angle(dockingPoint.forward, objectToDock.forward));
+        Debug.Log("Angle between dockingPoint and objectToDock up: " + Vector3.Angle(dockingPoint.up, objectToDock.up));
+        Debug.Log("Angle between dockingPoint and objectToDock right: " + Vector3.Angle(dockingPoint.right, objectToDock.right));
+
+        
+        if (Vector3.Distance(dockingPointCenter, objectToDockCenter) <= distance * 0.02f 
+        && Vector3.Angle(dockingPoint.forward, objectToDock.forward) <= 12 && Vector3.Angle(dockingPoint.up, objectToDock.up) <= 12 && Vector3.Angle(dockingPoint.right, objectToDock.right) <= 12)
         {
             //Change color of objectToDock to green
             objectToDock.GetComponent<Renderer>().material.color = Color.green;

@@ -26,7 +26,7 @@ public class TouchMovement : MonoBehaviour
     private const int thresholdMovementStationary = 5; //Maximum movement to be considered an accidental movement while stationary
     private const int necessaryMovement = 10; //Minimum movement to be considered a movement
     private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
-    private const int necessaryMovementCircle = 8; //Minimum movement to be considered a rotation (Circular Movement)
+    private const int necessaryMovementCircle = 15; //Minimum movement to be considered a rotation (Circular Movement)
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
@@ -35,7 +35,7 @@ public class TouchMovement : MonoBehaviour
     private float velocityModifierTranslationY = 0.01f; //Fixed value to decrease translationY velocity
     private float velocityModifierRotations = 0.25f; //Fixed value to decrease rotation velocity
 
-    private float scalingConstant = 2000.0f;    //Used to calculate scaling factor (maximum velocity before scaling > 1)
+    private float scalingConstant = 3000.0f;    //Used to calculate scaling factor (maximum velocity before scaling > 1)
 
     // Start is called before the first frame update
     void Start()
@@ -100,6 +100,11 @@ public class TouchMovement : MonoBehaviour
                         previousTouch2Position = Input.GetTouch(1).position;
                         return State.TranslationY;
                     }
+                    else if (checkRotationY(initialTouch1Position, initialTouch2Position)){
+                        previousTouch1Position = Input.GetTouch(0).position;
+                        previousTouch2Position = Input.GetTouch(1).position;
+                        return State.RotationY;
+                    }
                     else if (checkRotationZ(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = Input.GetTouch(0).position;
                         previousTouch2Position = Input.GetTouch(1).position;
@@ -110,11 +115,7 @@ public class TouchMovement : MonoBehaviour
                         previousTouch2Position = Input.GetTouch(1).position;
                         return State.RotationX;
                     }
-                    else if (checkRotationY(initialTouch1Position, initialTouch2Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
-                        previousTouch2Position = Input.GetTouch(1).position;
-                        return State.RotationY;
-                    }
+                    
                     else{
                         return State.Idle;
                     }
@@ -357,6 +358,8 @@ public class TouchMovement : MonoBehaviour
             float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
             float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
             float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
+            float touch1Distance = Vector2.Distance(touch1Position, touch1.position);
+            float touch2Distance = Vector2.Distance(touch2Position, touch2.position);
             float angle = Vector2.Angle(prevVector, vector);
 
             //Debug.Log(angle);
@@ -366,7 +369,7 @@ public class TouchMovement : MonoBehaviour
                 }
             }
             else{
-                if (Math.Abs(angle) >= necessaryAngle && ((touch1DistanceX >= necessaryMovementCircle || touch2DistanceX >= necessaryMovementCircle) && (touch1DistanceY > necessaryMovement || touch2DistanceY > necessaryMovement))){
+                if (Math.Abs(angle) >= necessaryAngle && ((touch1DistanceX >= necessaryMovement || touch2DistanceX >= necessaryMovement) && (touch1DistanceY >= 0 || touch2DistanceY >= 0) && (touch1Distance >= necessaryMovementCircle || touch2Distance >= necessaryMovementCircle))){
                     return true;
                 }      
             }
@@ -412,7 +415,7 @@ public class TouchMovement : MonoBehaviour
 
         float scalingFactor = velocity / scalingConstant;
 
-        Debug.Log(scalingFactor);
+        //Debug.Log(scalingFactor);
 
 
         Vector3 scalingFactorSize = GetComponent<Transform>().localScale;
@@ -429,18 +432,20 @@ public class TouchMovement : MonoBehaviour
         //scalingFactorSize = Vector3.Scale(scalingFactorSize, transform.parent.localScale);
         //Apply scaling factor to YTranslation
 
-
-
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
+            float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
+            float scalingFactor = velocity / scalingConstant;
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch1Distance.y * velocityModifierTranslationY * scalingFactorSize.y, 
+                transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f) * scalingFactorSize.y, 
                 transform.position.z);
         }
         else{
+            float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
+            float scalingFactor = velocity / scalingConstant;
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch2Distance.y * velocityModifierTranslationY * scalingFactorSize.y, 
+                transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f) * scalingFactorSize.y, 
                 transform.position.z);
         }
         
