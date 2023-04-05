@@ -24,9 +24,9 @@ public class TouchMovement : MonoBehaviour
     private const int thresholdMovementX = 25; //Maximum movement to be considered an accidental movement in the X axis 
     private const int thresholdMovementY = 40; //Maximum movement to be considered an accidental movement in the Y axis
     private const int thresholdMovementStationary = 5; //Maximum movement to be considered an accidental movement while stationary
-    private const int necessaryMovement = 15; //Minimum movement to be considered a movement
-    private const int necessaryAngle = 15; //Minimum angle to be considered a rotation
-    private const int necessaryMovementCircle = 10; //Minimum movement to be considered a rotation (Circular Movement)
+    private const int necessaryMovement = 10; //Minimum movement to be considered a movement
+    private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
+    private const int necessaryMovementCircle = 8; //Minimum movement to be considered a rotation (Circular Movement)
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
@@ -285,9 +285,7 @@ public class TouchMovement : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             float touchDistance = Vector2.Distance(touch1Position, touch.position);
             if (currentState == State.TranslationXZ){
-                if (touchDistance  > 0){
-                    return true;
-                }
+                return true;
             }
             else{
                 if (touchDistance >= necessaryMovement){
@@ -429,6 +427,8 @@ public class TouchMovement : MonoBehaviour
     void YTranslation(Vector2 touch1Distance, Vector2 touch2Distance){
         Vector3 scalingFactorSize = GetComponent<Transform>().localScale;
         //scalingFactorSize = Vector3.Scale(scalingFactorSize, transform.parent.localScale);
+        //Apply scaling factor to YTranslation
+
 
 
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
@@ -451,11 +451,14 @@ public class TouchMovement : MonoBehaviour
         //transform.Rotate(new Vector3((touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, 0, 0), Space.World);
 
         //Relative to frame
-        transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, Space.World);    
+        //transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, Space.World);  
+        transform.RotateAround(GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);  
+
     }
 
     void YRotation(float angle){
-        transform.Rotate(new Vector3(0, angle, 0), Space.World);
+        //transform.Rotate(new Vector3(0, angle, 0), Space.World);
+        transform.RotateAround(GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
     }
 
 
@@ -463,7 +466,8 @@ public class TouchMovement : MonoBehaviour
         //transform.Rotate(new Vector3(0, 0, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations), Space.World);
 
         //Relative to frame
-        transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations, Space.World);
+        //transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations, Space.World);
+        transform.RotateAround(GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
     }
 }
 

@@ -20,20 +20,19 @@ public class DockingHandler : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate() 
     {
-        Vector3 objectSize = Vector3.Scale(dockingPoint.GetComponent<BoxCollider>().size, dockingPoint.transform.localScale);
+        Vector3 objectToDockCenter = objectToDock.GetComponent<MeshCollider>().bounds.center;
+        Vector3 dockingPointCenter = dockingPoint.GetComponent<MeshCollider>().bounds.center;
+        
+        //Get distance from camera to dockingPoint
+        float distance = Vector3.Distance(Camera.main.transform.position, dockingPointCenter);
+
 
         //Log the variables below
-        // Debug.Log("Position X: " + (dockingPoint.position.x - objectToDock.position.x));
-        // Debug.Log("Size X: " + objectSize.x * 0.3f);
-        // Debug.Log("Position Y: " + (dockingPoint.position.y - objectToDock.position.y));
-        // Debug.Log("Size Y: " + objectSize.y * 0.3f);
-        // Debug.Log("Position Z: " + (dockingPoint.position.z - objectToDock.position.z));
-        // Debug.Log("Size Z: " + objectSize.z * 0.3f);
+        Debug.Log("Distance from camera: " + (distance * 0.01f));
+        Debug.Log("Object distance " + (Vector3.Distance(dockingPointCenter, objectToDockCenter)));
 
-        //Check if objectToDock is within 1 unit of dockingPoint
-        if (Math.Abs(dockingPoint.position.x - objectToDock.position.x) < objectSize.x * 0.3f &&
-            Math.Abs(dockingPoint.position.y - objectToDock.position.y) < objectSize.y * 0.3f &&
-            Math.Abs(dockingPoint.position.z - objectToDock.position.z) < objectSize.z * 0.3f)
+        //Check if distance between dockingPoint and objectToDock is less or equal than 10% of distance from camera to dockingPoint
+        if (Vector3.Distance(dockingPointCenter, objectToDockCenter) <= distance * 0.02f)
         {
             //Change color of objectToDock to green
             objectToDock.GetComponent<Renderer>().material.color = Color.green;
