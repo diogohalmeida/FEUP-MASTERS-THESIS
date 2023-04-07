@@ -415,35 +415,33 @@ public class TouchMovement : MonoBehaviour
             return;
         }
 
-        float distance = Vector3.Distance(Camera.main.transform.position, transform.position);
+        float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, transform.position) * 0.05f;
 
-        Debug.Log(distance);
-
-        float scalingFactor = velocity / scalingConstant;
+        float scalingFactorVelocity = velocity / scalingConstant;
 
         //Relative to frame
-        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactor, 1.2f) * distance*0.05f;
-        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactor, 1.2f)* distance*0.05f;
+        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance;
+        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance;
     }
 
 
     void YTranslation(Vector2 touch1Distance, Vector2 touch2Distance){
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
-            float scalingFactor = velocity / scalingConstant;
+            float scalingFactorVelocity = velocity / scalingConstant;
            
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f), 
+                transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
                 transform.position.z);
         }
         else{
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
-            float scalingFactor = velocity / scalingConstant;
+            float scalingFactorVelocity = velocity / scalingConstant;
             
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f), 
+                transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
                 transform.position.z);
         }
         
