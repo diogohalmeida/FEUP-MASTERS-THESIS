@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
 public class DockingHandler : MonoBehaviour
 {
     //Get child object called "DockingPoint" and "ObjectToDock"
     public Transform dockingPoint;
     public Transform objectToDock;
+    private float blinkingSpeed = 1;
+    private MaterialPropertyBlock mpbOTD;
+    private Renderer rendOTD;
 
     // Start is called before the first frame update
     void Start()
     {
-        //Initialize objectToDock with red color
-        objectToDock.GetComponent<Renderer>().material.color = Color.red;
-        dockingPoint.GetComponent<Renderer>().material.color = new Color(0.0f, 0.0f, 1.0f, 0.1f);
+        rendOTD = objectToDock.GetComponent<Renderer>();
+        mpbOTD = new MaterialPropertyBlock();        
     }
 
     // Update is called once per frame
@@ -42,12 +45,18 @@ public class DockingHandler : MonoBehaviour
         && Vector3.Angle(dockingPoint.forward, objectToDock.forward) <= 12 && Vector3.Angle(dockingPoint.up, objectToDock.up) <= 12 && Vector3.Angle(dockingPoint.right, objectToDock.right) <= 12)
         {
             //Change color of objectToDock to green
-            objectToDock.GetComponent<Renderer>().material.color = Color.green;
+            mpbOTD.SetColor("_Color", Color.green);
+            rendOTD.SetPropertyBlock(mpbOTD);
         }
         else
         {
             //Change color of objectToDock to red
-            objectToDock.GetComponent<Renderer>().material.color = Color.red;
+            mpbOTD.SetColor("_Color", Color.red);
+            rendOTD.SetPropertyBlock(mpbOTD);
+            
+            //Blinking effect
+            // mpbOTD.SetColor("_Color", Color.Lerp(Color.red, Color.white, Mathf.PingPong(Time.time * blinkingSpeed, 1)));
+            // rendOTD.SetPropertyBlock(mpbOTD);
         }
 
     }

@@ -410,7 +410,7 @@ public class TouchMovement : MonoBehaviour
 
         float velocity = touchDistance.magnitude / Time.deltaTime;
 
-        //Prevent teleports from lifting the finger
+        //Prevent teleports from lifting the finger and moving it back
         if (velocity > 10000){
             return;
         }
@@ -422,8 +422,8 @@ public class TouchMovement : MonoBehaviour
         float scalingFactor = velocity / scalingConstant;
 
         //Relative to frame
-        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactor, 1.2f);
-        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactor, 1.2f);
+        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactor, 1.2f) * distance*0.05f;
+        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactor, 1.2f)* distance*0.05f;
     }
 
 
