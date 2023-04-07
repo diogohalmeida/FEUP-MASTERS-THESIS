@@ -33,9 +33,9 @@ public class DockingHandler : MonoBehaviour
 
         //Check if distance between dockingPoint and objectToDock is less or equal than 2% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 12 degrees
         //Log angles
-        Debug.Log("Angle between dockingPoint and objectToDock fwd: " + Vector3.Angle(dockingPoint.forward, objectToDock.forward));
-        Debug.Log("Angle between dockingPoint and objectToDock up: " + Vector3.Angle(dockingPoint.up, objectToDock.up));
-        Debug.Log("Angle between dockingPoint and objectToDock right: " + Vector3.Angle(dockingPoint.right, objectToDock.right));
+        // Debug.Log("Angle between dockingPoint and objectToDock fwd: " + Vector3.Angle(dockingPoint.forward, objectToDock.forward));
+        // Debug.Log("Angle between dockingPoint and objectToDock up: " + Vector3.Angle(dockingPoint.up, objectToDock.up));
+        // Debug.Log("Angle between dockingPoint and objectToDock right: " + Vector3.Angle(dockingPoint.right, objectToDock.right));
 
         
         if (Vector3.Distance(dockingPointCenter, objectToDockCenter) <= distance * 0.02f 

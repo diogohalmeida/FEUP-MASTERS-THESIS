@@ -15,7 +15,7 @@ public class TouchMovement : MonoBehaviour
     private Vector2 initialTouch1Position;
     private Vector2 initialTouch2Position;
     
-    private const int stateCheckIntervalInitial = 5; //Number of ticks to wait while checking for state change - initial value
+    private const int stateCheckIntervalInitial = 3; //Number of ticks to wait while checking for state change - initial value
     private int stateCheckInterval = stateCheckIntervalInitial; //Number of ticks to wait while checking for state change
 
     private Vector2 previousTouch1Position;
@@ -408,44 +408,42 @@ public class TouchMovement : MonoBehaviour
         //     transform.position.z + touchDistance.y * velocityModifierTranslations);
 
 
-        //Debug.Log(touchDistance.magnitude);
-        //Debug.Log(Time.deltaTime);
-
         float velocity = touchDistance.magnitude / Time.deltaTime;
+
+        //Prevent teleports from lifting the finger
+        if (velocity > 10000){
+            return;
+        }
+
+        float distance = Vector3.Distance(Camera.main.transform.position, transform.position);
+
+        Debug.Log(distance);
 
         float scalingFactor = velocity / scalingConstant;
 
-        //Debug.Log(scalingFactor);
-
-
-        Vector3 scalingFactorSize = GetComponent<Transform>().localScale;
-        //scalingFactorSize = Vector3.Scale(scalingFactorSize, transform.parent.localScale);
-
         //Relative to frame
-        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactor, 1.2f) * scalingFactorSize.z;
-        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactor, 1.2f) * scalingFactorSize.x;
+        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactor, 1.2f);
+        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactor, 1.2f);
     }
 
 
     void YTranslation(Vector2 touch1Distance, Vector2 touch2Distance){
-        Vector3 scalingFactorSize = GetComponent<Transform>().localScale;
-        //scalingFactorSize = Vector3.Scale(scalingFactorSize, transform.parent.localScale);
-        //Apply scaling factor to YTranslation
-
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
             float scalingFactor = velocity / scalingConstant;
+           
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f) * scalingFactorSize.y, 
+                transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f), 
                 transform.position.z);
         }
         else{
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
             float scalingFactor = velocity / scalingConstant;
+            
             transform.position = new Vector3(
                 transform.position.x, 
-                transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f) * scalingFactorSize.y, 
+                transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactor, 1.2f), 
                 transform.position.z);
         }
         
