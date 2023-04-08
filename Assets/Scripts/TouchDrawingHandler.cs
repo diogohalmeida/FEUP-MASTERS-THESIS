@@ -10,37 +10,34 @@ public class TouchDrawingHandler : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (Input.touchCount == 0 || Input.touchCount > 2)
-        {
-            return;
-        }
-
-        for (int i = 0; i < Input.touchCount; i++)
-        {
-            Touch touch = Input.GetTouch(i);
-
-            if (touch.position.x > Screen.width || touch.position.y > Screen.height || touch.position.x < 0 || touch.position.y < 0)
+        if (Input.touchCount == 1 || Input.touchCount == 2){
+            for (int i = 0; i < Input.touchCount; i++)
             {
-                continue;
-            }
+                Touch touch = Input.GetTouch(i);
 
-            float positionRelativeX = touch.position.x / Screen.width;
-            float positionRelativeY = touch.position.y / Screen.height;
+                if (touch.position.x > Screen.width || touch.position.y > Screen.height || touch.position.x < 0 || touch.position.y < 0)
+                {
+                    continue;
+                }
 
-            Vector3 position = new Vector3();
-            position.x = positionRelativeX * transform.localScale.x * 10 - (10 * transform.localScale.x) / 2 + transform.position.x;
-            position.z = positionRelativeY * transform.localScale.z * 10 - (10 * transform.localScale.z) / 2 + transform.position.z;
-            position.y = transform.position.y + 0.1f;
+                float positionRelativeX = touch.position.x / Screen.width;
+                float positionRelativeY = touch.position.y / Screen.height;
 
-            if (i == 0)
-            {
-                GameObject newPixel = Instantiate(pixelRed, position, Quaternion.identity);
-                pixelsRed.Add(newPixel);
-            }
-            else if (i == 1)
-            {
-                GameObject newPixel = Instantiate(pixelGreen, position, Quaternion.identity);
-                pixelsGreen.Add(newPixel);
+                Vector3 position = new Vector3();
+                position.x = positionRelativeX * transform.localScale.x * 10 - (10 * transform.localScale.x) / 2 + transform.position.x;
+                position.z = positionRelativeY * transform.localScale.z * 10 - (10 * transform.localScale.z) / 2 + transform.position.z;
+                position.y = transform.position.y + 0.1f;
+
+                if (i == 0)
+                {
+                    GameObject newPixel = Instantiate(pixelRed, position, Quaternion.identity);
+                    pixelsRed.Add(newPixel);
+                }
+                else if (i == 1)
+                {
+                    GameObject newPixel = Instantiate(pixelGreen, position, Quaternion.identity);
+                    pixelsGreen.Add(newPixel);
+                }
             }
         }
 
