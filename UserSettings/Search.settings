@@ -3,11 +3,11 @@ fetchPreview = true
 defaultFlags = 0
 keepOpen = false
 queryFolder = "Assets"
-onBoardingDoNotAskAgain = false
+onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.DE949528" = "scene"
+	"last_search.DE949528" = "lighting"
 	"OpenInspectorPreview.DE949528" = "0"
 	"currentGroup.DE949528" = "all"
 }
