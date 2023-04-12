@@ -14,6 +14,9 @@ public class TouchMovement : MonoBehaviour
     private int touchCount = 0;
     private Vector2 initialTouch1Position;
     private Vector2 initialTouch2Position;
+
+    public int touch1ID;
+    public int touch2ID;
     
     private const int stateCheckIntervalInitial = 3; //Number of ticks to wait while checking for state change - initial value
     private int stateCheckInterval = stateCheckIntervalInitial; //Number of ticks to wait while checking for state change
@@ -37,10 +40,12 @@ public class TouchMovement : MonoBehaviour
 
     private float scalingConstant = 3000.0f;    //Used to calculate scaling factor (maximum velocity before scaling > 1)
 
+    private TaskHandler taskHandler;
+
     // Start is called before the first frame update
     void Start()
     {
-
+        taskHandler = GetComponent<TaskHandler>();
     }
 
     // Update is called once per frame
@@ -68,16 +73,19 @@ public class TouchMovement : MonoBehaviour
             case State.Idle:
                 if (Input.touchCount == 1){
                     Touch touch = Input.GetTouch(0);
+                    touch1ID = touch.fingerId;
                     initialTouch1Position = touch.position;
-                    touchCount = 1;
+                    touchCount = Input.touchCount;
                     return State.Checking;
                 }
-                else if (Input.touchCount == 2){
+                else if (Input.touchCount >= 2){
                     Touch touch1 = Input.GetTouch(0);
+                    touch1ID = touch1.fingerId;
                     Touch touch2 = Input.GetTouch(1);
+                    touch2ID = touch2.fingerId;
                     initialTouch1Position = touch1.position;
                     initialTouch2Position = touch2.position;
-                    touchCount = 2;
+                    touchCount = Input.touchCount;
                     return State.Checking; 
                 }
                 else{
@@ -92,27 +100,27 @@ public class TouchMovement : MonoBehaviour
                 if (stateCheckInterval == 0){
                     stateCheckInterval = stateCheckIntervalInitial;
                     if (checkTranslationXZ(initialTouch1Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
+                        previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         return State.TranslationXZ;
                     }
                     else if (checkTranslationY(initialTouch1Position, initialTouch2Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
-                        previousTouch2Position = Input.GetTouch(1).position;
+                        previousTouch1Position = getTouchByID(touch1ID, 1).position;
+                        previousTouch2Position = getTouchByID(touch2ID, 2).position;
                         return State.TranslationY;
                     }
                     else if (checkRotationY(initialTouch1Position, initialTouch2Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
-                        previousTouch2Position = Input.GetTouch(1).position;
+                        previousTouch1Position = getTouchByID(touch1ID, 1).position;
+                        previousTouch2Position = getTouchByID(touch2ID, 2).position;
                         return State.RotationY;
                     }
                     else if (checkRotationZ(initialTouch1Position, initialTouch2Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
-                        previousTouch2Position = Input.GetTouch(1).position;
+                        previousTouch1Position = getTouchByID(touch1ID, 1).position;
+                        previousTouch2Position = getTouchByID(touch2ID, 2).position;
                         return State.RotationZ;
                     }
                     else if (checkRotationX(initialTouch1Position, initialTouch2Position)){
-                        previousTouch1Position = Input.GetTouch(0).position;
-                        previousTouch2Position = Input.GetTouch(1).position;
+                        previousTouch1Position = getTouchByID(touch1ID, 1).position;
+                        previousTouch2Position = getTouchByID(touch2ID, 2).position;
                         return State.RotationX;
                     }
                     
@@ -126,7 +134,7 @@ public class TouchMovement : MonoBehaviour
                 }
             case State.TranslationXZ:
                 if (checkTranslationXZ(previousTouch1Position)){
-                    Touch touch = Input.GetTouch(0);
+                    Touch touch = getTouchByID(touch1ID, 1);
 
                     Vector2 touchDistance = touch.position - previousTouch1Position;
                     
@@ -146,8 +154,8 @@ public class TouchMovement : MonoBehaviour
                 }
             case State.TranslationY:
                 if (checkTranslationY(previousTouch1Position, previousTouch2Position)){
-                    Touch touch1 = Input.GetTouch(0);
-                    Touch touch2 = Input.GetTouch(1);
+                    Touch touch1 = getTouchByID(touch1ID, 1);
+                    Touch touch2 = getTouchByID(touch2ID, 2);
                     
                     Vector2 touch1Distance = touch1.position - previousTouch1Position;
                     Vector2 touch2Distance = touch2.position - previousTouch2Position;
@@ -163,9 +171,9 @@ public class TouchMovement : MonoBehaviour
                     if (Input.touchCount == 0){
                         thresholdError = 0;
                     }
-                    else if (Input.touchCount == 2){
-                        Touch touch1 = Input.GetTouch(0);
-                        Touch touch2 = Input.GetTouch(1);
+                    else if (Input.touchCount >= 2){
+                        Touch touch1 = getTouchByID(touch1ID, 1);
+                        Touch touch2 = getTouchByID(touch2ID, 2);
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
@@ -176,8 +184,8 @@ public class TouchMovement : MonoBehaviour
                 }
             case State.RotationX:
                 if (checkRotationX(previousTouch1Position, previousTouch2Position)){
-                    Touch touch1 = Input.GetTouch(0);
-                    Touch touch2 = Input.GetTouch(1);
+                    Touch touch1 = getTouchByID(touch1ID, 1);
+                    Touch touch2 = getTouchByID(touch2ID, 2);
 
                     Vector2 touch1Distance = touch1.position - previousTouch1Position;
                     Vector2 touch2Distance = touch2.position - previousTouch2Position;
@@ -193,9 +201,9 @@ public class TouchMovement : MonoBehaviour
                     if (Input.touchCount == 0){
                         thresholdError = 0;
                     }
-                    else if (Input.touchCount == 2){
-                        Touch touch1 = Input.GetTouch(0);
-                        Touch touch2 = Input.GetTouch(1);
+                    else if (Input.touchCount >= 2){
+                        Touch touch1 = getTouchByID(touch1ID, 1);
+                        Touch touch2 = getTouchByID(touch2ID, 2);
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
@@ -206,8 +214,8 @@ public class TouchMovement : MonoBehaviour
                 }
             case State.RotationY:
                 if (checkRotationY(previousTouch1Position, previousTouch2Position)){
-                    Touch touch1 = Input.GetTouch(0);
-                    Touch touch2 = Input.GetTouch(1);
+                    Touch touch1 = getTouchByID(touch1ID, 1);
+                    Touch touch2 = getTouchByID(touch2ID, 2);
                     //Calculate vector between touch1Position and touch2Position
                     Vector2 prevVector = previousTouch2Position - previousTouch1Position;  
                     //Calculate vector between current touch1 and current touch2 position
@@ -231,9 +239,9 @@ public class TouchMovement : MonoBehaviour
                     if (Input.touchCount == 0){
                         thresholdError = 0;
                     }
-                    else if (Input.touchCount == 2){
-                        Touch touch1 = Input.GetTouch(0);
-                        Touch touch2 = Input.GetTouch(1);
+                    else if (Input.touchCount >= 2){
+                        Touch touch1 = getTouchByID(touch1ID, 1);
+                        Touch touch2 = getTouchByID(touch2ID, 2);
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
@@ -244,8 +252,8 @@ public class TouchMovement : MonoBehaviour
                 }
             case State.RotationZ:
                 if (checkRotationZ(previousTouch1Position, previousTouch2Position)){
-                    Touch touch1 = Input.GetTouch(0);
-                    Touch touch2 = Input.GetTouch(1);
+                    Touch touch1 = getTouchByID(touch1ID, 1);
+                    Touch touch2 = getTouchByID(touch2ID, 2);
 
                     Vector2 touch1Distance = touch1.position - previousTouch1Position;
                     Vector2 touch2Distance = touch2.position - previousTouch2Position;
@@ -261,9 +269,9 @@ public class TouchMovement : MonoBehaviour
                     if (Input.touchCount == 0){
                         thresholdError = 0;
                     }
-                    else if (Input.touchCount == 2){
-                        Touch touch1 = Input.GetTouch(0);
-                        Touch touch2 = Input.GetTouch(1);
+                    else if (Input.touchCount >= 2){
+                        Touch touch1 = getTouchByID(touch1ID, 1);
+                        Touch touch2 = getTouchByID(touch2ID, 2);
                         previousTouch1Position = touch1.position;
                         previousTouch2Position = touch2.position;
                     }
@@ -283,7 +291,7 @@ public class TouchMovement : MonoBehaviour
 
     bool checkTranslationXZ(Vector2 touch1Position){
         if (Input.touchCount == 1){
-            Touch touch = Input.GetTouch(0);
+            Touch touch = getTouchByID(touch1ID, 1);
             float touchDistance = Vector2.Distance(touch1Position, touch.position);
             if (currentState == State.TranslationXZ){
                 return true;
@@ -298,9 +306,9 @@ public class TouchMovement : MonoBehaviour
     }
 
     bool checkTranslationY(Vector2 touch1Position, Vector2 touch2Position){
-        if (Input.touchCount == 2){
-            Touch touch1 = Input.GetTouch(0);
-            Touch touch2 = Input.GetTouch(1);
+        if (Input.touchCount >= 2){
+            Touch touch1 = getTouchByID(touch1ID, 1);
+            Touch touch2 = getTouchByID(touch2ID, 2);
             float touch1DistanceX = Math.Abs(touch1Position.x - touch1.position.x);
             float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
             float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
@@ -323,9 +331,9 @@ public class TouchMovement : MonoBehaviour
     }
 
     bool checkRotationX(Vector2 touch1Position, Vector2 touch2Position){
-        if (Input.touchCount == 2){
-            Touch touch1 = Input.GetTouch(0);
-            Touch touch2 = Input.GetTouch(1);
+        if (Input.touchCount >= 2){
+            Touch touch1 = getTouchByID(touch1ID, 1);
+            Touch touch2 = getTouchByID(touch2ID, 2);
             float touch1DistanceX = Math.Abs(touch1Position.x - touch1.position.x);
             float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
             float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
@@ -346,9 +354,9 @@ public class TouchMovement : MonoBehaviour
     }
 
     bool checkRotationY(Vector2 touch1Position, Vector2 touch2Position){
-        if (Input.touchCount == 2){
-            Touch touch1 = Input.GetTouch(0);
-            Touch touch2 = Input.GetTouch(1);
+        if (Input.touchCount >= 2){
+            Touch touch1 = getTouchByID(touch1ID, 1);
+            Touch touch2 = getTouchByID(touch2ID, 2);
             //Calculate vector between touch1Position and touch2Position
             Vector2 prevVector = touch2Position - touch1Position;  
             //Calculate vector between current touch1 and current touch2 position
@@ -379,9 +387,9 @@ public class TouchMovement : MonoBehaviour
     }
 
     bool checkRotationZ(Vector2 touch1Position, Vector2 touch2Position){
-        if (Input.touchCount == 2){
-            Touch touch1 = Input.GetTouch(0);
-            Touch touch2 = Input.GetTouch(1);
+        if (Input.touchCount >= 2){
+            Touch touch1 = getTouchByID(touch1ID, 1);
+            Touch touch2 = getTouchByID(touch2ID, 2);
             float touch1DistanceX = Math.Abs(touch1Position.x - touch1.position.x);
             float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
             float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
@@ -402,10 +410,10 @@ public class TouchMovement : MonoBehaviour
     }
 
     void XZTranslation(Vector2 touchDistance){
-        // transform.position = new Vector3(
-        //     transform.position.x + touchDistance.x * velocityModifierTranslations, 
-        //     transform.position.y, 
-        //     transform.position.z + touchDistance.y * velocityModifierTranslations);
+        // taskHandler.objectToDock.transform.position = new Vector3(
+        //     taskHandler.objectToDock.transform.position.x + touchDistance.x * velocityModifierTranslations, 
+        //     taskHandler.objectToDock.transform.position.y, 
+        //     taskHandler.objectToDock.transform.position.z + touchDistance.y * velocityModifierTranslations);
 
 
         float velocity = touchDistance.magnitude / Time.deltaTime;
@@ -415,13 +423,13 @@ public class TouchMovement : MonoBehaviour
             return;
         }
 
-        float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, transform.position) * 0.05f;
+        float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
 
         float scalingFactorVelocity = velocity / scalingConstant;
 
         //Relative to frame
-        transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance;
-        transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance;
+        taskHandler.objectToDock.transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance;
+        taskHandler.objectToDock.transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance;
     }
 
 
@@ -430,45 +438,63 @@ public class TouchMovement : MonoBehaviour
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
            
-            transform.position = new Vector3(
-                transform.position.x, 
-                transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
-                transform.position.z);
+            taskHandler.objectToDock.transform.position = new Vector3(
+                taskHandler.objectToDock.transform.position.x, 
+                taskHandler.objectToDock.transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
+                taskHandler.objectToDock.transform.position.z);
         }
         else{
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
             
-            transform.position = new Vector3(
-                transform.position.x, 
-                transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
-                transform.position.z);
+            taskHandler.objectToDock.transform.position = new Vector3(
+                taskHandler.objectToDock.transform.position.x, 
+                taskHandler.objectToDock.transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
+                taskHandler.objectToDock.transform.position.z);
         }
         
     }
 
 
     void XRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        //transform.Rotate(new Vector3((touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, 0, 0), Space.World);
+        //taskHandler.objectToDock.transform.Rotate(new Vector3((touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, 0, 0), Space.World);
 
         //Relative to frame
-        //transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, Space.World);  
-        transform.RotateAround(GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);  
+        //taskHandler.objectToDock.transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, Space.World);  
+        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);  
 
     }
 
     void YRotation(float angle){
-        //transform.Rotate(new Vector3(0, angle, 0), Space.World);
-        transform.RotateAround(GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
+        //taskHandler.objectToDock.transform.Rotate(new Vector3(0, angle, 0), Space.World);
+        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
     }
 
 
     void ZRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        //transform.Rotate(new Vector3(0, 0, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations), Space.World);
+        //taskHandler.objectToDock.transform.Rotate(new Vector3(0, 0, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations), Space.World);
 
         //Relative to frame
-        //transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations, Space.World);
-        transform.RotateAround(GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
+        //taskHandler.objectToDock.transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations, Space.World);
+        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
+    }
+
+
+    Touch getTouchByID(int id, int touchNumber){
+        for (int i = 0; i < Input.touchCount; i++){
+            if (Input.GetTouch(i).fingerId == id){
+                return Input.GetTouch(i);
+            }
+        }
+        Debug.Log("Touch " + touchNumber + " not found");
+        if (touchNumber == 1){
+            touch1ID = Input.GetTouch(0).fingerId;
+        }
+        else{
+            touch2ID = Input.GetTouch(0).fingerId;
+        }
+        
+        return Input.GetTouch(0);
     }
 }
 

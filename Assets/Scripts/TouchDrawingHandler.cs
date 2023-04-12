@@ -7,10 +7,16 @@ public class TouchDrawingHandler : MonoBehaviour
     public GameObject pixelGreen;
     private List<GameObject> pixelsRed = new List<GameObject>();
     private List<GameObject> pixelsGreen = new List<GameObject>();
+    private TouchMovement touchMovement;
+
+    void Start(){
+        touchMovement = GameObject.Find("DockingObjects").GetComponent<TouchMovement>();
+        
+    }
 
     void FixedUpdate()
     {
-        if (Input.touchCount == 1 || Input.touchCount == 2){
+        if (Input.touchCount > 0){
             for (int i = 0; i < Input.touchCount; i++)
             {
                 Touch touch = Input.GetTouch(i);
@@ -28,15 +34,17 @@ public class TouchDrawingHandler : MonoBehaviour
                 position.z = positionRelativeY * transform.localScale.z * 10 - (10 * transform.localScale.z) / 2 + transform.position.z;
                 position.y = transform.position.y + 0.1f;
 
-                if (i == 0)
-                {
-                    GameObject newPixel = Instantiate(pixelRed, position, Quaternion.identity);
-                    pixelsRed.Add(newPixel);
-                }
-                else if (i == 1)
+
+
+                if (touch.fingerId == touchMovement.touch1ID || touch.fingerId == touchMovement.touch2ID)
                 {
                     GameObject newPixel = Instantiate(pixelGreen, position, Quaternion.identity);
                     pixelsGreen.Add(newPixel);
+                }
+                else
+                {
+                    GameObject newPixel = Instantiate(pixelRed, position, Quaternion.identity);
+                    pixelsRed.Add(newPixel);
                 }
             }
         }
@@ -44,7 +52,7 @@ public class TouchDrawingHandler : MonoBehaviour
         for (int i = pixelsRed.Count - 1; i >= 0; i--)
         {
             Color pixelColor = pixelsRed[i].GetComponent<Renderer>().material.color;
-            pixelColor.a -= Time.deltaTime / 5f;
+            pixelColor.a -= Time.deltaTime / 0.1f;
             pixelsRed[i].GetComponent<Renderer>().material.color = pixelColor;
 
             if (pixelColor.a <= 0)
