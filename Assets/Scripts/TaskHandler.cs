@@ -15,6 +15,17 @@ public class TaskHandler : MonoBehaviour
     public Transform dockingPoint;
     public Transform objectToDock;
 
+    public float collisionXmin;
+    public float collisionXmax;
+    public float collisionYmin;
+    public float collisionYmax;
+    public float collisionZmin;
+    public float collisionZmax;
+
+    public float offsetX;
+    public float offsetY;
+    public float offsetZ;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,18 +36,32 @@ public class TaskHandler : MonoBehaviour
         }     
         dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
         objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Initialize collision list with office boundary
+        Vector3 officeOffset = GameObject.Find("Office").transform.position;
+
+        collisionXmin = -12.5f + officeOffset.x;
+        collisionXmax = 12.5f + officeOffset.x;
+        collisionYmin = 0 + officeOffset.y;
+        collisionYmax = 6.6f + officeOffset.y;
+        collisionZmin = -5 + officeOffset.z; 
+        collisionZmax = 10f + officeOffset.z;
     }
 
     public void nextPair()
     {
         currentPairIndex++;
-        dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
-        objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
+
+        if (currentPairIndex < children.Count)
+        {
+            dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
+            objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
+
+            //Change collision list values to world boundaries
+        }
+        else
+        {
+            Debug.Log("All tasks completed");
+        }
     }
 }

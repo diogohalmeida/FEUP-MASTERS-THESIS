@@ -49,7 +49,7 @@ public class DockingHandler : MonoBehaviour
                 taskHandler.nextPair();
                 completeCount = 0;
             }
-            updateStatusUI(true);
+            updateStatusUI(true, completeCount);
         }
         else
         {
@@ -59,7 +59,7 @@ public class DockingHandler : MonoBehaviour
             //Blinking effect
             taskHandler.objectToDock.GetComponent<Renderer>().material.color = Color.Lerp(Color.red, Color.white, Mathf.PingPong(Time.time * blinkingSpeed, 1));
             completeCount = 0;
-            updateStatusUI(false);
+            updateStatusUI(false, completeCount);
         }
 
         updateDistanceRotationUI(distanceCameraToDP, distanceObjectToDP, angleX, angleY, angleZ);
@@ -87,7 +87,7 @@ public class DockingHandler : MonoBehaviour
         rotationZText.GetComponent<TMPro.TextMeshProUGUI>().text = "Offset Z (max " + maximumAngle + "°): " + angleZ.ToString("F2") + "°";
     }
 
-    void updateStatusUI(bool status){
+    void updateStatusUI(bool status, int completeCount){
         Transform statusText = GameObject.Find("StatusText").transform;
 
         if (status)

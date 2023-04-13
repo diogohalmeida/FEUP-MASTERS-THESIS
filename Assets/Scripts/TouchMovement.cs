@@ -48,12 +48,6 @@ public class TouchMovement : MonoBehaviour
         taskHandler = GetComponent<TaskHandler>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     //FixedUpdate is called 50 times per second (can change in Edit -> Project Settings -> Time)
     void FixedUpdate(){
         if (thresholdError == 0){
@@ -101,26 +95,42 @@ public class TouchMovement : MonoBehaviour
                     stateCheckInterval = stateCheckIntervalInitial;
                     if (checkTranslationXZ(initialTouch1Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
+                        //XZTranslation(previousTouch1Position - initialTouch1Position);
                         return State.TranslationXZ;
                     }
                     else if (checkTranslationY(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
+                        //YTranslation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
                         return State.TranslationY;
                     }
                     else if (checkRotationY(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
+                        // Vector2 vector = previousTouch2Position - previousTouch1Position;  
+                        // //Calculate vector between current touch1 and current touch2 position
+                        // Vector2 prevVector = initialTouch2Position - initialTouch1Position;
+
+                        // float angle = Vector2.Angle(prevVector, vector);
+
+                        // //Check if the motion is clockwise or counterclockwise (by default the angle is positive so it's clockwise)
+                        // float cross = (previousTouch1Position.x - previousTouch2Position.x) * (initialTouch1Position.y - initialTouch2Position.y) - (previousTouch1Position.y - previousTouch2Position.y) * (initialTouch1Position.x - initialTouch2Position.x);
+                        // if (cross < 0){
+                        //     angle = -angle; //Counterclockwise
+                        // }
+                        // YRotation(angle);
                         return State.RotationY;
                     }
                     else if (checkRotationZ(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
+                        //ZRotation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
                         return State.RotationZ;
                     }
                     else if (checkRotationX(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
+                        //XRotation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
                         return State.RotationX;
                     }
                     
@@ -428,8 +438,15 @@ public class TouchMovement : MonoBehaviour
         float scalingFactorVelocity = velocity / scalingConstant;
 
         //Relative to frame
-        taskHandler.objectToDock.transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance;
-        taskHandler.objectToDock.transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance;
+        Debug.Log(taskHandler.objectToDock.transform.position);
+
+        if ((taskHandler.objectToDock.transform.position + (referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance)).x > taskHandler.collisionXmin
+            && (taskHandler.objectToDock.transform.position + (referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance)).x < taskHandler.collisionXmax
+            && (taskHandler.objectToDock.transform.position + (referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance)).z > taskHandler.collisionZmin
+            && (taskHandler.objectToDock.transform.position + (referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance)).z < taskHandler.collisionZmax){
+            taskHandler.objectToDock.transform.position += referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance;
+            taskHandler.objectToDock.transform.position += referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance;
+        }
     }
 
 
@@ -437,20 +454,19 @@ public class TouchMovement : MonoBehaviour
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
-           
-            taskHandler.objectToDock.transform.position = new Vector3(
-                taskHandler.objectToDock.transform.position.x, 
-                taskHandler.objectToDock.transform.position.y + touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
-                taskHandler.objectToDock.transform.position.z);
+            if ((taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f))).y > taskHandler.collisionYmin
+                && (taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f))).y < taskHandler.collisionYmax){
+            taskHandler.objectToDock.transform.position += referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f);
+            }
         }
         else{
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
             
-            taskHandler.objectToDock.transform.position = new Vector3(
-                taskHandler.objectToDock.transform.position.x, 
-                taskHandler.objectToDock.transform.position.y + touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f), 
-                taskHandler.objectToDock.transform.position.z);
+            if ((taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f))).y > taskHandler.collisionYmin
+                && (taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f))).y < taskHandler.collisionYmax){
+            taskHandler.objectToDock.transform.position += referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f);
+            }
         }
         
     }
