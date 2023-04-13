@@ -26,7 +26,7 @@ public class TouchMovement : MonoBehaviour
 
     private const int thresholdMovementX = 25; //Maximum movement to be considered an accidental movement in the X axis 
     private const int thresholdMovementY = 40; //Maximum movement to be considered an accidental movement in the Y axis
-    private const int thresholdMovementStationary = 5; //Maximum movement to be considered an accidental movement while stationary
+    private const int thresholdMovementStationary = 1; //Maximum movement to be considered an accidental movement while stationary
     private const int necessaryMovement = 10; //Minimum movement to be considered a movement
     private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
     private const int necessaryMovementCircle = 15; //Minimum movement to be considered a rotation (Circular Movement)

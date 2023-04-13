@@ -65,7 +65,7 @@ public class TouchDrawingHandler : MonoBehaviour
         for (int i = pixelsGreen.Count - 1; i >= 0; i--)
         {
             Color pixelColor = pixelsGreen[i].GetComponent<Renderer>().material.color;
-            pixelColor.a -= Time.deltaTime / 5f;
+            pixelColor.a -= Time.deltaTime / 2f;
             pixelsGreen[i].GetComponent<Renderer>().material.color = pixelColor;
 
             if (pixelColor.a <= 0)
