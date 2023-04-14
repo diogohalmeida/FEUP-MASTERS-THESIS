@@ -51,7 +51,13 @@ public class Homer : MonoBehaviour
 
                 float scalingFactor = velocity / scalingConstant;
 
-                taskHandler.objectToDock.transform.position = handDeltaTranslation * (velocityModifierTranslations * Math.Min(scalingFactor, 1.2f)) + taskHandler.objectToDock.transform.position;
+                Vector3 newPosition = handDeltaTranslation * (velocityModifierTranslations * Math.Min(scalingFactor, 1.2f)) + taskHandler.objectToDock.transform.position;
+                if (newPosition.x > taskHandler.collisionXmin && newPosition.x < taskHandler.collisionXmax && 
+                newPosition.y > taskHandler.collisionYmin && newPosition.y < taskHandler.collisionYmax && 
+                newPosition.z > taskHandler.collisionZmin && newPosition.z < taskHandler.collisionZmax)
+                {
+                    taskHandler.objectToDock.transform.position = newPosition;
+                }
                 taskHandler.objectToDock.transform.rotation = previousObjectRotation * handDeltaRotation;
                 
                 previousHandPosition = rightHand.position;

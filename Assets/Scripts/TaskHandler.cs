@@ -22,10 +22,6 @@ public class TaskHandler : MonoBehaviour
     public float collisionZmin;
     public float collisionZmax;
 
-    public float offsetX;
-    public float offsetY;
-    public float offsetZ;
-
     // Start is called before the first frame update
     void Start()
     {
