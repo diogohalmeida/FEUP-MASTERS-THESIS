@@ -39,11 +39,13 @@ public class TouchDrawingHandler : MonoBehaviour
                 if (touch.fingerId == touchMovement.touch1ID || touch.fingerId == touchMovement.touch2ID)
                 {
                     GameObject newPixel = Instantiate(pixelGreen, position, Quaternion.identity);
+                    newPixel.transform.SetParent(transform);
                     pixelsGreen.Add(newPixel);
                 }
                 else
                 {
                     GameObject newPixel = Instantiate(pixelRed, position, Quaternion.identity);
+                    newPixel.transform.SetParent(transform);
                     pixelsRed.Add(newPixel);
                 }
             }
