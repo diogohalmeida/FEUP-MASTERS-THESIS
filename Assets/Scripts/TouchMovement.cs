@@ -42,12 +42,17 @@ public class TouchMovement : MonoBehaviour
 
     private TaskHandler taskHandler;
 
-    public GameObject rotationArrowX;
-    public GameObject rotationArrowY;
-    public GameObject rotationArrowZ;
+    public GameObject rotationArrowX1;
+    public GameObject rotationArrowX2;
+    public GameObject rotationArrowY1;
+    public GameObject rotationArrowY2;
+    public GameObject rotationArrowZ1;
+    public GameObject rotationArrowZ2;
 
-    public GameObject rotationArrow = null;
-    private int rotationArrowScale;
+    public GameObject rotationArrow1 = null;
+    public GameObject rotationArrow2 = null;
+    private int rotationArrowScale = 10;
+    private bool rotationClockwise;
     
 
     // Start is called before the first frame update
@@ -59,8 +64,9 @@ public class TouchMovement : MonoBehaviour
     //FixedUpdate is called 50 times per second (can change in Edit -> Project Settings -> Time)
     void FixedUpdate(){
         if (thresholdError == 0){
-            if (rotationArrow != null){
-                Destroy(rotationArrow);
+            if (rotationArrow1 != null && rotationArrow2 != null){
+                Destroy(rotationArrow1);
+                Destroy(rotationArrow2);
             }
             currentState = State.Idle;
             thresholdError = thresholdErrorInitial;
@@ -124,17 +130,26 @@ public class TouchMovement : MonoBehaviour
 
                         float angle = Vector2.Angle(prevVector, vector);
 
+                        //Instantiate RotationArrowX prefab as child of objectToDock and rotate it around the objectToDock
+                        Vector3 center1 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.x/2, 0, 0);
+                        Vector3 center2 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(-taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.x/2, 0, 0);
+                    
+                        rotationArrow1 = Instantiate(rotationArrowY1, center1, Quaternion.identity);
+                        rotationArrow2 = Instantiate(rotationArrowY2, center2, Quaternion.identity);
+
                         //Check if the motion is clockwise or counterclockwise (by default the angle is positive so it's clockwise)
                         float cross = (previousTouch1Position.x - previousTouch2Position.x) * (initialTouch1Position.y - initialTouch2Position.y) - (previousTouch1Position.y - previousTouch2Position.y) * (initialTouch1Position.x - initialTouch2Position.x);
                         if (cross < 0){
                             angle = -angle; //Counterclockwise
+                            rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, -135);
+                            rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, -135);
+                            rotationClockwise = false;
                         }
-
-
-                        //Instantiate RotationArrowX prefab as child of objectToDock and rotate it around the objectToDock
-                        rotationArrow = Instantiate(rotationArrowY, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, Quaternion.identity);
-                    
-                        rotationArrow.transform.SetParent(taskHandler.objectToDock.transform);
+                        else{
+                            rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 0);
+                            rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 0);
+                            rotationClockwise = true;
+                        }
 
                         YRotation(angle);
 
@@ -143,16 +158,35 @@ public class TouchMovement : MonoBehaviour
                     else if (checkRotationZ(initialTouch1Position, initialTouch2Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
-
+        
                         //Instantiate RotationArrowX prefab as child of objectToDock and rotate it around the objectToDock
-                        rotationArrow = Instantiate(rotationArrowZ, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, Quaternion.identity);
+                        Vector3 center1 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.y/2, 0);
+                        Vector3 center2 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, -taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.y/2, 0);
 
+                        rotationArrow1 = Instantiate(rotationArrowZ1, center1, Quaternion.identity);
+                        rotationArrow2 = Instantiate(rotationArrowZ2, center2, Quaternion.identity);
+                        
                         //Rotate the rotationArrow 90 degrees to make it point in the correct direction
-                        rotationArrow.transform.Rotate(90, 0, 0);
+                        rotationArrow1.transform.Rotate(90, 0, 0, Space.World);
+                        rotationArrow2.transform.Rotate(90, 0, 0, Space.World);
 
-                        rotationArrow.transform.SetParent(taskHandler.objectToDock.transform);
 
-                        ZRotation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
+                        Vector3 touch1Distance = previousTouch1Position - initialTouch1Position;
+                        Vector3 touch2Distance = previousTouch2Position - initialTouch2Position;
+
+                       
+                        if (touch1Distance.x + touch2Distance.x > 0){
+                            rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, -45);
+                            rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, -45);
+                            rotationClockwise = true;
+                        }
+                        else{ 
+                            rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 45);
+                            rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 45);
+                            rotationClockwise = false;
+                        }
+
+                        ZRotation(touch1Distance, touch2Distance);
 
                         return State.RotationZ;
                     }
@@ -160,13 +194,32 @@ public class TouchMovement : MonoBehaviour
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
                         
+                        
                         //Instantiate RotationArrowX prefab as child of objectToDock and rotate it around the objectToDock
-                        rotationArrow = Instantiate(rotationArrowX, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, Quaternion.identity);
+                        Vector3 center1 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, 0, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.z/2);
+                        Vector3 center2 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, 0, -taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.z/2);
+
+                        rotationArrow1 = Instantiate(rotationArrowX1, center1, Quaternion.identity);
+                        rotationArrow2 = Instantiate(rotationArrowX2, center2, Quaternion.identity);
                         
                         //Rotate the rotationArrow 90 degrees to make it point in the correct direction
-                        rotationArrow.transform.Rotate(0, 0, 90);
+                        rotationArrow1.transform.Rotate(0, 0, 90, Space.World);
+                        rotationArrow2.transform.Rotate(0, 0, 90, Space.World);
 
-                        rotationArrow.transform.SetParent(taskHandler.objectToDock.transform);
+
+                        Vector3 touch1Distance = previousTouch1Position - initialTouch1Position;
+                        Vector3 touch2Distance = previousTouch2Position - initialTouch2Position;
+
+                        if (touch1Distance.y + touch2Distance.y > 0){
+                            rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 90);
+                            rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 90);
+                            rotationClockwise = true;
+                        }
+                        else{ 
+                            rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 45);
+                            rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 45);
+                            rotationClockwise = false;
+                        }
                         
                         XRotation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
                         
@@ -491,8 +544,10 @@ public class TouchMovement : MonoBehaviour
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
-
-            Vector3 newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f));
+            
+            float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
+            
+            Vector3 newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
             if (newPositionY.y > taskHandler.collisionYmin && newPositionY.y < taskHandler.collisionYmax){
                 taskHandler.objectToDock.transform.position = newPositionY;
             }
@@ -501,7 +556,9 @@ public class TouchMovement : MonoBehaviour
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
             
-            Vector3 newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f));
+            float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
+     
+            Vector3 newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
             if (newPositionY.y > taskHandler.collisionYmin && newPositionY.y < taskHandler.collisionYmax){
                 taskHandler.objectToDock.transform.position = newPositionY;
             }
@@ -511,52 +568,97 @@ public class TouchMovement : MonoBehaviour
 
 
     void XRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        //taskHandler.objectToDock.transform.Rotate(new Vector3((touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, 0, 0), Space.World);
-
-        //Relative to frame
-        //taskHandler.objectToDock.transform.Rotate(referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations, Space.World);  
+        
         if (touch1Distance.y + touch2Distance.y < 0){
+            if (rotationClockwise){
+                rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, -45);
+                rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, -45);
+                rotationClockwise = false;
+            }
             //mirror rotationArrow
-            rotationArrow.transform.localScale = new Vector3(rotationArrowX.transform.localScale.x, rotationArrowX.transform.localScale.y, -rotationArrowX.transform.localScale.z);
+            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, -rotationArrowScale);
+            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, -rotationArrowScale);
         }
-        else{
-            rotationArrow.transform.localScale = new Vector3(rotationArrowX.transform.localScale.x, rotationArrowX.transform.localScale.y, rotationArrowX.transform.localScale.z);
+        else if (touch1Distance.y + touch2Distance.y > 0){
+
+            if (!rotationClockwise){
+                rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 45);
+                rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 45);
+                rotationClockwise = true;
+            }
+            //mirror rotationArrow
+            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
         }
         
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);  
+        
+        rotationArrow1.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);
+        rotationArrow2.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);
 
     }
 
     void YRotation(float angle){
-        //taskHandler.objectToDock.transform.Rotate(new Vector3(0, angle, 0), Space.World);
         if (angle > 0){
+            if (!rotationClockwise){
+                rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 135);
+                rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 135);
+                rotationClockwise = true;
+            }
             //mirror rotationArrow
-            rotationArrow.transform.localScale = new Vector3(-rotationArrowY.transform.localScale.x, rotationArrowY.transform.localScale.y, rotationArrowY.transform.localScale.z);
+            rotationArrow1.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow2.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);        
         }
         else if (angle < 0){
-            rotationArrow.transform.localScale = new Vector3(rotationArrowY.transform.localScale.x, rotationArrowY.transform.localScale.y, rotationArrowY.transform.localScale.z);
+            if (rotationClockwise){
+                rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, -135);
+                rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, -135);
+                rotationClockwise = false;
+            }
+            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
         }
 
 
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
+
+        rotationArrow1.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
+        rotationArrow2.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
+
     }
 
 
     void ZRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        //taskHandler.objectToDock.transform.Rotate(new Vector3(0, 0, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations), Space.World);
-
-        //Relative to frame
-        //taskHandler.objectToDock.transform.Rotate(referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations, Space.World);
+        float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.3f;
+        
         if (touch1Distance.x + touch2Distance.x < 0){
+            
+            if (rotationClockwise){
+                rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 90);
+                rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, 90);
+                rotationClockwise = false;
+            }
             //mirror rotationArrow
-            rotationArrow.transform.localScale = new Vector3(-rotationArrowZ.transform.localScale.x, rotationArrowZ.transform.localScale.y, rotationArrowZ.transform.localScale.z);
+            rotationArrow1.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow2.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);
         }
-        else{
-            rotationArrow.transform.localScale = new Vector3(rotationArrowZ.transform.localScale.x, rotationArrowZ.transform.localScale.y, rotationArrowZ.transform.localScale.z);
+        else if (touch1Distance.x + touch2Distance.x > 0){
+
+            if (!rotationClockwise){
+                rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, -90);
+                rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, -90);
+                rotationClockwise = true;
+            }
+            //mirror rotationArrow
+            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
         }
-        
-        
+
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
+
+        rotationArrow1.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
+        rotationArrow2.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
+
     }
 
 
@@ -576,4 +678,6 @@ public class TouchMovement : MonoBehaviour
         return Input.GetTouch(0);
     }
 }
+
+
 

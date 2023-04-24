@@ -36,12 +36,19 @@ public class TaskHandler : MonoBehaviour
         //Initialize collision list with office boundary
         Vector3 officeOffset = GameObject.Find("Office").transform.position;
 
-        collisionXmin = -12.5f + officeOffset.x;
-        collisionXmax = 12.5f + officeOffset.x;
-        collisionYmin = 0 + officeOffset.y;
-        collisionYmax = 6.6f + officeOffset.y;
-        collisionZmin = -5 + officeOffset.z; 
-        collisionZmax = 10f + officeOffset.z;
+        // collisionXmin = -12.5f + officeOffset.x;
+        // collisionXmax = 12.5f + officeOffset.x;
+        // collisionYmin = 0 + officeOffset.y;
+        // collisionYmax = 6.6f + officeOffset.y;
+        // collisionZmin = -5 + officeOffset.z; 
+        // collisionZmax = 10f + officeOffset.z;
+
+        collisionXmin = -200;
+        collisionXmax = 200;
+        collisionYmin = -200;
+        collisionYmax = 200;
+        collisionZmin = -200;
+        collisionZmax = 200;
     }
 
     public void nextPair()

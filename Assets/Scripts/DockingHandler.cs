@@ -34,6 +34,9 @@ public class DockingHandler : MonoBehaviour
 
 
         float distanceObjectToDP = Vector3.Distance(dockingPointCenter, objectToDockCenter);
+        //Calculate angle between dockingPoint and objectToDock
+        float angle = Quaternion.Angle(taskHandler.dockingPoint.transform.rotation, taskHandler.objectToDock.transform.rotation);
+
         float angleX = Vector3.Angle(taskHandler.dockingPoint.forward, taskHandler.objectToDock.forward);
         float angleY = Vector3.Angle(taskHandler.dockingPoint.up, taskHandler.objectToDock.up);
         float angleZ = Vector3.Angle(taskHandler.dockingPoint.right, taskHandler.objectToDock.right);
@@ -62,29 +65,21 @@ public class DockingHandler : MonoBehaviour
             updateStatusUI(false, completeCount);
         }
 
-        updateDistanceRotationUI(distanceCameraToDP, distanceObjectToDP, angleX, angleY, angleZ);
+        updateDistanceRotationUI(distanceCameraToDP, distanceObjectToDP, angle);
 
     }
 
 
-    void updateDistanceRotationUI(float distanceCameraToDP, float distanceObjectToDP, float angleX, float angleY, float angleZ){
+    void updateDistanceRotationUI(float distanceCameraToDP, float distanceObjectToDP, float angle){
         //Update GUI
         Transform distanceText = GameObject.Find("DistanceText").transform;
-        Transform rotationXText = GameObject.Find("RotationXText").transform;
-        Transform rotationYText = GameObject.Find("RotationYText").transform;
-        Transform rotationZText = GameObject.Find("RotationZText").transform;
+        Transform rotationText = GameObject.Find("RotationText").transform;
 
         //Change text from distanceText to distance from objectToDock to dockingPoint
         distanceText.GetComponent<TMPro.TextMeshProUGUI>().text = "Target Distance (max " + (distanceCameraToDP * distanceFactor).ToString("F2") + "m): " + distanceObjectToDP.ToString("F2") + "m";
 
         //Change text from rotationXText to angle between dockingPoint and objectToDock
-        rotationXText.GetComponent<TMPro.TextMeshProUGUI>().text = "Offset X (max " + maximumAngle + "°): " + angleX.ToString("F2") + "°";
-
-        //Change text from rotationYText to angle between dockingPoint and objectToDock
-        rotationYText.GetComponent<TMPro.TextMeshProUGUI>().text = "Offset Y (max " + maximumAngle + "°): " + angleY.ToString("F2") + "°";
-
-        //Change text from rotationZText to angle between dockingPoint and objectToDock
-        rotationZText.GetComponent<TMPro.TextMeshProUGUI>().text = "Offset Z (max " + maximumAngle + "°): " + angleZ.ToString("F2") + "°";
+        rotationText.GetComponent<TMPro.TextMeshProUGUI>().text = "Angle Offset (max " + maximumAngle + "°): " + angle.ToString("F2") + "°";
     }
 
     void updateStatusUI(bool status, int completeCount){
