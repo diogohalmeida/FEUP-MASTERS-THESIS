@@ -568,6 +568,8 @@ public class TouchMovement : MonoBehaviour
 
 
     void XRotation(Vector2 touch1Distance, Vector2 touch2Distance){
+        float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.1f;
+        float scalingFactor = Math.Max(rotationArrowScale, rotationArrowScale * arrowScalingDistance);
         
         if (touch1Distance.y + touch2Distance.y < 0){
             if (rotationClockwise){
@@ -576,8 +578,8 @@ public class TouchMovement : MonoBehaviour
                 rotationClockwise = false;
             }
             //mirror rotationArrow
-            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, -rotationArrowScale);
-            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, -rotationArrowScale);
+            rotationArrow1.transform.localScale = new Vector3(scalingFactor, scalingFactor, -scalingFactor);
+            rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, -scalingFactor);
         }
         else if (touch1Distance.y + touch2Distance.y > 0){
 
@@ -587,8 +589,8 @@ public class TouchMovement : MonoBehaviour
                 rotationClockwise = true;
             }
             //mirror rotationArrow
-            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
-            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow1.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
+            rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
         }
         
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);  
@@ -599,6 +601,9 @@ public class TouchMovement : MonoBehaviour
     }
 
     void YRotation(float angle){
+        float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.1f;
+        float scalingFactor = Math.Max(rotationArrowScale, rotationArrowScale * arrowScalingDistance);
+
         if (angle > 0){
             if (!rotationClockwise){
                 rotationArrow1.transform.RotateAround(rotationArrow1.transform.position, rotationArrow1.transform.up, 135);
@@ -606,8 +611,8 @@ public class TouchMovement : MonoBehaviour
                 rotationClockwise = true;
             }
             //mirror rotationArrow
-            rotationArrow1.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);
-            rotationArrow2.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);        
+            rotationArrow1.transform.localScale = new Vector3(-scalingFactor, scalingFactor, scalingFactor);
+            rotationArrow2.transform.localScale = new Vector3(-scalingFactor, scalingFactor, scalingFactor);        
         }
         else if (angle < 0){
             if (rotationClockwise){
@@ -615,8 +620,8 @@ public class TouchMovement : MonoBehaviour
                 rotationArrow2.transform.RotateAround(rotationArrow2.transform.position, rotationArrow2.transform.up, -135);
                 rotationClockwise = false;
             }
-            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
-            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow1.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
+            rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
         }
 
 
@@ -629,7 +634,8 @@ public class TouchMovement : MonoBehaviour
 
 
     void ZRotation(Vector2 touch1Distance, Vector2 touch2Distance){
-        float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.3f;
+        float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.1f;
+        float scalingFactor = Math.Max(rotationArrowScale, rotationArrowScale * arrowScalingDistance);
         
         if (touch1Distance.x + touch2Distance.x < 0){
             
@@ -639,8 +645,8 @@ public class TouchMovement : MonoBehaviour
                 rotationClockwise = false;
             }
             //mirror rotationArrow
-            rotationArrow1.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);
-            rotationArrow2.transform.localScale = new Vector3(-rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow1.transform.localScale = new Vector3(-scalingFactor, scalingFactor, scalingFactor);
+            rotationArrow2.transform.localScale = new Vector3(-scalingFactor, scalingFactor,scalingFactor);
         }
         else if (touch1Distance.x + touch2Distance.x > 0){
 
@@ -650,8 +656,8 @@ public class TouchMovement : MonoBehaviour
                 rotationClockwise = true;
             }
             //mirror rotationArrow
-            rotationArrow1.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
-            rotationArrow2.transform.localScale = new Vector3(rotationArrowScale, rotationArrowScale, rotationArrowScale);
+            rotationArrow1.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
+            rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
         }
 
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
