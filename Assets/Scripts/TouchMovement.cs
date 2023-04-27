@@ -42,17 +42,32 @@ public class TouchMovement : MonoBehaviour
 
     private TaskHandler taskHandler;
 
-    public GameObject rotationArrowX1;
-    public GameObject rotationArrowX2;
-    public GameObject rotationArrowY1;
-    public GameObject rotationArrowY2;
-    public GameObject rotationArrowZ1;
-    public GameObject rotationArrowZ2;
+    public GameObject rotationArrowX1Prefab;
+    public GameObject rotationArrowX2Prefab;
+    public GameObject rotationArrowY1Prefab;
+    public GameObject rotationArrowY2Prefab;
+    public GameObject rotationArrowZ1Prefab;
+    public GameObject rotationArrowZ2Prefab;
+
+    public GameObject translationArrowXPrefab;
+    public GameObject translationArrowYPrefab;
+    public GameObject translationArrowZPrefab;
+
 
     public GameObject rotationArrow1 = null;
     public GameObject rotationArrow2 = null;
+
+    public GameObject translationArrowX1 = null;
+    public GameObject translationArrowX2 = null;
+    public GameObject translationArrowY1 = null;
+    public GameObject translationArrowY2 = null;
+    public GameObject translationArrowZ1 = null;
+    public GameObject translationArrowZ2 = null;
+
     private int rotationArrowScale = 10;
     private bool rotationClockwise;
+
+    private int translationArrowScale = 1;
     
 
     // Start is called before the first frame update
@@ -67,6 +82,16 @@ public class TouchMovement : MonoBehaviour
             if (rotationArrow1 != null && rotationArrow2 != null){
                 Destroy(rotationArrow1);
                 Destroy(rotationArrow2);
+            }
+            if (translationArrowX1 != null && translationArrowX2 != null && translationArrowZ1 != null && translationArrowZ2 != null){
+                Destroy(translationArrowX1);
+                Destroy(translationArrowX2);
+                Destroy(translationArrowZ1);
+                Destroy(translationArrowZ2);
+            }
+            if (translationArrowY1 != null && translationArrowY2 != null){
+                Destroy(translationArrowY1);
+                Destroy(translationArrowY2);
             }
             currentState = State.Idle;
             thresholdError = thresholdErrorInitial;
@@ -112,12 +137,46 @@ public class TouchMovement : MonoBehaviour
                     stateCheckInterval = stateCheckIntervalInitial;
                     if (checkTranslationXZ(initialTouch1Position)){
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
+
+                        Vector3 center = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
+                        
+                        translationArrowX1 = Instantiate(translationArrowXPrefab, center, Quaternion.identity);
+                        translationArrowX1.transform.position -= taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.x * referenceFrame.transform.right;
+                        
+                        translationArrowX2 = Instantiate(translationArrowXPrefab, center, Quaternion.identity);
+                        translationArrowX2.transform.Rotate(0, 180, 0);
+                        translationArrowX2.transform.position += taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.x * referenceFrame.transform.right;
+                        
+                        translationArrowZ1 = Instantiate(translationArrowZPrefab, center, Quaternion.identity);
+                        translationArrowZ1.transform.Rotate(0, -90, 0);
+                        translationArrowZ1.transform.position -= taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.z * referenceFrame.transform.forward;
+                        
+                        translationArrowZ2 = Instantiate(translationArrowZPrefab, center, Quaternion.identity);
+                        translationArrowZ2.transform.Rotate(0, 90, 0);
+                        translationArrowZ2.transform.position += taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.z * referenceFrame.transform.forward;
+                        
+                        // translationArrowX1.transform.parent = taskHandler.objectToDock.transform;
+                        // translationArrowX2.transform.parent = taskHandler.objectToDock.transform;
+                        // translationArrowZ1.transform.parent = taskHandler.objectToDock.transform;
+                        // translationArrowZ2.transform.parent = taskHandler.objectToDock.transform;
+
+
                         XZTranslation(previousTouch1Position - initialTouch1Position);
                         return State.TranslationXZ;
                     }
                     else if (checkTranslationY(initialTouch1Position, initialTouch2Position)){
+                        Vector3 center = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
                         previousTouch1Position = getTouchByID(touch1ID, 1).position;
                         previousTouch2Position = getTouchByID(touch2ID, 2).position;
+
+                        translationArrowY1 = Instantiate(translationArrowYPrefab, center, Quaternion.identity);
+                        translationArrowY1.transform.Rotate(0, 90, 90);
+                        translationArrowY1.transform.position -= taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.y * referenceFrame.transform.up;
+                        
+                        translationArrowY2 = Instantiate(translationArrowYPrefab, center, Quaternion.identity);
+                        translationArrowY2.transform.Rotate(0, 90, -90);
+                        translationArrowY2.transform.position += taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.y * referenceFrame.transform.up;
+
                         YTranslation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
                         return State.TranslationY;
                     }
@@ -134,8 +193,8 @@ public class TouchMovement : MonoBehaviour
                         Vector3 center1 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.x/2, 0, 0);
                         Vector3 center2 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(-taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.x/2, 0, 0);
                     
-                        rotationArrow1 = Instantiate(rotationArrowY1, center1, Quaternion.identity);
-                        rotationArrow2 = Instantiate(rotationArrowY2, center2, Quaternion.identity);
+                        rotationArrow1 = Instantiate(rotationArrowY1Prefab, center1, Quaternion.identity);
+                        rotationArrow2 = Instantiate(rotationArrowY2Prefab, center2, Quaternion.identity);
 
                         //Check if the motion is clockwise or counterclockwise (by default the angle is positive so it's clockwise)
                         float cross = (previousTouch1Position.x - previousTouch2Position.x) * (initialTouch1Position.y - initialTouch2Position.y) - (previousTouch1Position.y - previousTouch2Position.y) * (initialTouch1Position.x - initialTouch2Position.x);
@@ -163,8 +222,8 @@ public class TouchMovement : MonoBehaviour
                         Vector3 center1 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.y/2, 0);
                         Vector3 center2 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, -taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.y/2, 0);
 
-                        rotationArrow1 = Instantiate(rotationArrowZ1, center1, Quaternion.identity);
-                        rotationArrow2 = Instantiate(rotationArrowZ2, center2, Quaternion.identity);
+                        rotationArrow1 = Instantiate(rotationArrowZ1Prefab, center1, Quaternion.identity);
+                        rotationArrow2 = Instantiate(rotationArrowZ2Prefab, center2, Quaternion.identity);
                         
                         //Rotate the rotationArrow 90 degrees to make it point in the correct direction
                         rotationArrow1.transform.Rotate(90, 0, 0, Space.World);
@@ -199,8 +258,8 @@ public class TouchMovement : MonoBehaviour
                         Vector3 center1 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, 0, taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.z/2);
                         Vector3 center2 = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center + new Vector3(0, 0, -taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.size.z/2);
 
-                        rotationArrow1 = Instantiate(rotationArrowX1, center1, Quaternion.identity);
-                        rotationArrow2 = Instantiate(rotationArrowX2, center2, Quaternion.identity);
+                        rotationArrow1 = Instantiate(rotationArrowX1Prefab, center1, Quaternion.identity);
+                        rotationArrow2 = Instantiate(rotationArrowX2Prefab, center2, Quaternion.identity);
                         
                         //Rotate the rotationArrow 90 degrees to make it point in the correct direction
                         rotationArrow1.transform.Rotate(0, 0, 90, Space.World);
@@ -512,12 +571,6 @@ public class TouchMovement : MonoBehaviour
     }
 
     void XZTranslation(Vector2 touchDistance){
-        // taskHandler.objectToDock.transform.position = new Vector3(
-        //     taskHandler.objectToDock.transform.position.x + touchDistance.x * velocityModifierTranslations, 
-        //     taskHandler.objectToDock.transform.position.y, 
-        //     taskHandler.objectToDock.transform.position.z + touchDistance.y * velocityModifierTranslations);
-
-
         float velocity = touchDistance.magnitude / Time.deltaTime;
 
         //Prevent teleports from lifting the finger and moving it back
@@ -536,7 +589,7 @@ public class TouchMovement : MonoBehaviour
         if ((newPositionX.x > taskHandler.collisionXmin && newPositionX.x < taskHandler.collisionXmax)
             && (newPositionZ.z > taskHandler.collisionZmin && newPositionZ.z < taskHandler.collisionZmax)){
             taskHandler.objectToDock.transform.position = newPositionX + (newPositionZ - taskHandler.objectToDock.transform.position);
-        }
+        }  
     }
 
 
@@ -683,6 +736,44 @@ public class TouchMovement : MonoBehaviour
         
         return Input.GetTouch(0);
     }
+
+
+    void LateUpdate(){
+
+        //Translation arrow logic must be updated here since mesh collider center and bounds are only updated in LateUpdate
+        if (translationArrowX1 != null && translationArrowX2 != null && translationArrowZ1 != null && translationArrowZ2 != null){
+            Vector3 center = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
+            Vector3 extents = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents;
+
+            float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.1f;
+            float scalingFactorArrow = Math.Max(translationArrowScale, translationArrowScale * arrowScalingDistance);
+
+            translationArrowX1.transform.position = center + (-extents.x-scalingFactorArrow*0.5f) * referenceFrame.transform.right;
+            translationArrowX2.transform.position = center + (extents.x+scalingFactorArrow*0.5f) * referenceFrame.transform.right;
+            translationArrowZ1.transform.position = center + (-extents.z-scalingFactorArrow*0.5f) * referenceFrame.transform.forward;
+            translationArrowZ2.transform.position = center + (extents.z+scalingFactorArrow*0.5f) * referenceFrame.transform.forward;
+
+            translationArrowX1.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
+            translationArrowX2.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
+            translationArrowZ1.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
+            translationArrowZ2.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
+        }
+
+        if (translationArrowY1 != null && translationArrowY2 != null){
+            Vector3 center = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
+            Vector3 extents = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents;
+
+            float arrowScalingDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)*0.1f;
+            float scalingFactorArrow = Math.Max(translationArrowScale, translationArrowScale * arrowScalingDistance);
+
+            translationArrowY1.transform.position = center + (-extents.y-scalingFactorArrow*0.5f) * referenceFrame.transform.up;
+            translationArrowY2.transform.position = center + (extents.y+scalingFactorArrow*0.5f) * referenceFrame.transform.up;
+
+            translationArrowY1.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
+            translationArrowY2.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
+        }
+    }
+    
 }
 
 

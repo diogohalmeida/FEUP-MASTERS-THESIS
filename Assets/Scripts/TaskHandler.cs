@@ -43,12 +43,14 @@ public class TaskHandler : MonoBehaviour
         // collisionZmin = -5 + officeOffset.z; 
         // collisionZmax = 10f + officeOffset.z;
 
-        collisionXmin = -200;
-        collisionXmax = 200;
-        collisionYmin = -200;
-        collisionYmax = 200;
-        collisionZmin = -200;
-        collisionZmax = 200;
+
+        //Outer limits -600, 600
+        collisionXmin = -600;
+        collisionXmax = 600;
+        collisionYmin = 0;
+        collisionYmax = 500;
+        collisionZmin = -600;
+        collisionZmax = 600;
     }
 
     public void nextPair()
