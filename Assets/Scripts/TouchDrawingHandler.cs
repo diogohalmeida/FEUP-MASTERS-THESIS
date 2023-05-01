@@ -9,9 +9,11 @@ public class TouchDrawingHandler : MonoBehaviour
     private List<GameObject> pixelsGreen = new List<GameObject>();
     private TouchMovement touchMovement;
 
+    private float sceneScale;
+
     void Start(){
         touchMovement = GameObject.Find("DockingObjects").GetComponent<TouchMovement>();
-        
+        sceneScale = GameObject.Find("Docking Task Scene").transform.localScale.x;
     }
 
     void FixedUpdate()
@@ -30,9 +32,9 @@ public class TouchDrawingHandler : MonoBehaviour
                 float positionRelativeY = touch.position.y / Screen.height;
 
                 Vector3 position = new Vector3();
-                position.x = positionRelativeX * transform.localScale.x * 10 - (10 * transform.localScale.x) / 2 + transform.position.x;
-                position.z = positionRelativeY * transform.localScale.z * 10 - (10 * transform.localScale.z) / 2 + transform.position.z;
-                position.y = transform.position.y + 0.1f;
+                position.x = positionRelativeX * transform.localScale.x*10*sceneScale - (10*sceneScale*transform.localScale.x) / 2 + transform.position.x;
+                position.z = positionRelativeY * transform.localScale.z*10*sceneScale  - (10*sceneScale*transform.localScale.z) / 2 + transform.position.z;
+                position.y = transform.position.y + 0.1f * sceneScale;
 
 
 

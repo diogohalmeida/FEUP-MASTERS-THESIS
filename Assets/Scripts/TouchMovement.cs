@@ -54,20 +54,20 @@ public class TouchMovement : MonoBehaviour
     public GameObject translationArrowZPrefab;
 
 
-    public GameObject rotationArrow1 = null;
-    public GameObject rotationArrow2 = null;
+    private GameObject rotationArrow1 = null;
+    private GameObject rotationArrow2 = null;
 
-    public GameObject translationArrowX1 = null;
-    public GameObject translationArrowX2 = null;
-    public GameObject translationArrowY1 = null;
-    public GameObject translationArrowY2 = null;
-    public GameObject translationArrowZ1 = null;
-    public GameObject translationArrowZ2 = null;
+    private GameObject translationArrowX1 = null;
+    private GameObject translationArrowX2 = null;
+    private GameObject translationArrowY1 = null;
+    private GameObject translationArrowY2 = null;
+    private GameObject translationArrowZ1 = null;
+    private GameObject translationArrowZ2 = null;
 
-    private int rotationArrowScale = 10;
+    private int rotationArrowScale = 5;
     private bool rotationClockwise;
 
-    private int translationArrowScale = 1;
+    private float translationArrowScale = 0.5f;
     
 
     // Start is called before the first frame update
@@ -159,7 +159,6 @@ public class TouchMovement : MonoBehaviour
                         // translationArrowX2.transform.parent = taskHandler.objectToDock.transform;
                         // translationArrowZ1.transform.parent = taskHandler.objectToDock.transform;
                         // translationArrowZ2.transform.parent = taskHandler.objectToDock.transform;
-
 
                         XZTranslation(previousTouch1Position - initialTouch1Position);
                         return State.TranslationXZ;
