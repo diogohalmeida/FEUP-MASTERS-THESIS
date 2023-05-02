@@ -67,7 +67,7 @@ public class TouchMovement : MonoBehaviour
     private int rotationArrowScale = 5;
     private bool rotationClockwise;
 
-    private float translationArrowScale = 0.5f;
+    private float translationArrowScale = 0.3f;
     
 
     // Start is called before the first frame update
@@ -78,6 +78,10 @@ public class TouchMovement : MonoBehaviour
 
     //FixedUpdate is called 50 times per second (can change in Edit -> Project Settings -> Time)
     void FixedUpdate(){
+        if (taskHandler.mode == 0)
+        {
+            return;
+        }
         if (thresholdError == 0){
             if (rotationArrow1 != null && rotationArrow2 != null){
                 Destroy(rotationArrow1);
@@ -141,10 +145,12 @@ public class TouchMovement : MonoBehaviour
                         Vector3 center = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
                         
                         translationArrowX1 = Instantiate(translationArrowXPrefab, center, Quaternion.identity);
+                        translationArrowX1.transform.Rotate(90, 0, 0);
                         translationArrowX1.transform.position -= taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.x * referenceFrame.transform.right;
                         
+
                         translationArrowX2 = Instantiate(translationArrowXPrefab, center, Quaternion.identity);
-                        translationArrowX2.transform.Rotate(0, 180, 0);
+                        translationArrowX2.transform.Rotate(90, 180, 0);
                         translationArrowX2.transform.position += taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.x * referenceFrame.transform.right;
                         
                         translationArrowZ1 = Instantiate(translationArrowZPrefab, center, Quaternion.identity);
