@@ -119,7 +119,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 200}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 1680
+  controlID: 1338
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 1681
+  controlID: 1339
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -169,7 +169,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 1682
+  controlID: 1340
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -312,7 +312,7 @@ MonoBehaviour:
   m_SerializedViewValues:
   - C:\Users\diogo\Desktop\Faculdade\Tese\UserExperiment\Library\PlayModeViewStates\63e0a7abf13f40c4dbbbde58535fbcc9
   m_PlayModeViewName: GameView
-  m_ShowGizmos: 1
+  m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
   m_TargetSize: {x: 1920, y: 1080}
@@ -322,7 +322,7 @@ MonoBehaviour:
   m_EnterPlayModeBehavior: 1
   m_UseMipMap: 0
   m_VSyncEnabled: 0
-  m_Gizmos: 1
+  m_Gizmos: 0
   m_Stats: 1
   m_SelectedSizes: 03000000000000000000000000000000000000000000000000000000000000000000000000000000
   m_ZoomArea:
@@ -406,9 +406,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 527f0000
-      m_LastClickedID: 32594
-      m_ExpandedIDs: 2efbffff5a7600009c7b0000527f00008e810000ce830000
+      m_SelectedIDs: f8f0ffff
+      m_LastClickedID: -3848
+      m_ExpandedIDs: ecf0fffff8f0ffff2cfbffff2efbffffac7b00007c7f0000c881000014b10000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -510,7 +510,7 @@ MonoBehaviour:
       floating: 0
       collapsed: 0
       displayed: 1
-      snapOffset: {x: 0, y: 0}
+      snapOffset: {x: 0, y: 25.599998}
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: unity-transform-toolbar
@@ -692,9 +692,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 0.32204723, y: 14.5, z: -167.5}
+    m_Target: {x: -1.5112917, y: 22.107191, z: -76.08795}
     speed: 2
-    m_Value: {x: 0.32204723, y: 14.5, z: -167.5}
+    m_Value: {x: -1.5112917, y: 22.107191, z: -76.08795}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -741,20 +741,20 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.6914921, y: -0.03246401, z: 0.031048238, w: -0.7211393}
+    m_Target: {x: 0.38059282, y: 0.43291977, z: -0.20740512, w: 0.79062396}
     speed: 2
-    m_Value: {x: -0.6914921, y: -0.03246401, z: 0.031048236, w: -0.7211393}
+    m_Value: {x: 0.37907252, y: 0.4298928, z: -0.20436245, w: 0.79355675}
   m_Size:
-    m_Target: 9.882831
+    m_Target: 1.9238964
     speed: 2
-    m_Value: 9.882831
+    m_Value: 1.9238964
   m_Ortho:
     m_Target: 0
     speed: 2
     m_Value: 0
   m_CameraSettings:
-    m_Speed: 0.82059
-    m_SpeedNormalized: 0.41
+    m_Speed: 0.88056
+    m_SpeedNormalized: 0.44
     m_SpeedMin: 0.001
     m_SpeedMax: 2
     m_EasingEnabled: 1
@@ -803,7 +803,7 @@ MonoBehaviour:
     m_SaveData: []
     m_OverlaysVisible: 1
   m_SearchFilter:
-    m_NameFilter: 
+    m_NameFilter: board
     m_ClassNames: []
     m_AssetLabels: []
     m_AssetBundleNames: []
@@ -815,22 +815,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scenes
+    - Assets/SimpleOfficeInteriors/_Prefabs
     m_Globs: []
-    m_OriginalText: 
+    m_OriginalText: board
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scenes
+  - Assets/SimpleOfficeInteriors/_Prefabs
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\diogo\Desktop\Faculdade\Tese\UserExperiment
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 79}
-    m_SelectedIDs: e08e0000
-    m_LastClickedID: 36576
-    m_ExpandedIDs: 00000000b28e000000ca9a3bffffff7f
+    scrollPos: {x: 0, y: 141.40009}
+    m_SelectedIDs: c48f0000
+    m_LastClickedID: 36804
+    m_ExpandedIDs: 000000005a8f00007a8f000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -846,7 +846,7 @@ MonoBehaviour:
       m_IsRenaming: 0
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 0}
+      m_ClientGUIView: {fileID: 10}
     m_SearchString: 
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
@@ -858,7 +858,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000b28e000000ca9a3bffffff7f
+    m_ExpandedIDs: 000000005a8f000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -886,7 +886,7 @@ MonoBehaviour:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
     m_HadKeyboardFocusLastEvent: 0
-    m_ExpandedInstanceIDs: c6230000e6350000a4b40e002ea30000
+    m_ExpandedInstanceIDs: c6230000e6350000a4b40e002ea30000a2590200
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -910,7 +910,7 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
     m_NewAssetIndexInList: -1
-    m_ScrollPosition: {x: 0, y: 0}
+    m_ScrollPosition: {x: 0, y: 72.400024}
     m_GridSize: 64
   m_SkipHiddenPackages: 0
   m_DirectoriesAreaWidth: 207

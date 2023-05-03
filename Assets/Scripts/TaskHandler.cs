@@ -69,5 +69,18 @@ public class TaskHandler : MonoBehaviour
         {
             Debug.Log("All tasks completed");
         }
+
+        if (currentPairIndex == 2){
+            //find object called "Office" and "Glass"
+            GameObject office = GameObject.Find("Office");
+            GameObject glass = GameObject.Find("Glass");
+
+            //disable glass
+            glass.SetActive(false);
+
+            //rotate office 180 degrees and set position to 0,50,-215
+            office.transform.Rotate(0,180,0);
+            office.transform.position = new Vector3(0,50,-205);
+        }
     }
 }
