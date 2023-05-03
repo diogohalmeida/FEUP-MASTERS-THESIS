@@ -13,7 +13,7 @@ public class Homer : MonoBehaviour
     private Quaternion previousHandRotation;
     private Quaternion previousObjectRotation;
 
-    private float velocityModifierTranslations = 10f;
+    private float velocityModifierTranslations = 5f;
 
     private float scalingConstant = 1f;
 
@@ -47,22 +47,27 @@ public class Homer : MonoBehaviour
             else{
                  //Move the object to the position of the right hand
                 Vector3 handDeltaTranslation = rightHand.position - previousHandPosition;
-                Quaternion handDeltaRotation = Quaternion.Inverse(previousHandRotation) * rightHand.rotation;
+                Quaternion handDeltaRotation = rightHand.rotation * Quaternion.Inverse(previousHandRotation);
+
+                Vector3 pivotPoint = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
 
                 float velocity = handDeltaTranslation.magnitude / Time.deltaTime;
 
                 Debug.Log(velocity);
 
-                float scalingFactor = velocity / scalingConstant;
+                float scalingFactorVelocity = velocity / scalingConstant;
+                float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.25f;
 
-                Vector3 newPosition = handDeltaTranslation * (velocityModifierTranslations * Math.Min(scalingFactor, 1.2f)) + taskHandler.objectToDock.transform.position;
+                Vector3 newPosition = handDeltaTranslation * (velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance + taskHandler.objectToDock.transform.position;
                 if (newPosition.x > taskHandler.collisionXmin && newPosition.x < taskHandler.collisionXmax && 
                 newPosition.y > taskHandler.collisionYmin && newPosition.y < taskHandler.collisionYmax && 
                 newPosition.z > taskHandler.collisionZmin && newPosition.z < taskHandler.collisionZmax)
                 {
                     taskHandler.objectToDock.transform.position = newPosition;
                 }
-                taskHandler.objectToDock.transform.rotation = previousObjectRotation * handDeltaRotation;
+                //taskHandler.objectToDock.transform.rotation = previousObjectRotation * handDeltaRotation;
+
+                RotateAround(taskHandler.objectToDock.transform, pivotPoint, handDeltaRotation);
                 
                 previousHandPosition = rightHand.position;
                 previousHandRotation = rightHand.rotation;
@@ -76,5 +81,12 @@ public class Homer : MonoBehaviour
             return;
         }
 
+    }
+
+    public static void RotateAround(Transform objectTransform, Vector3 pivotPoint, Quaternion rotation)
+    {   
+        rotation.ToAngleAxis(out var angle, out var axis);
+
+        objectTransform.RotateAround(pivotPoint, axis, angle);
     }
 }           
