@@ -78,7 +78,7 @@ public class TouchMovement : MonoBehaviour
 
     //FixedUpdate is called 50 times per second (can change in Edit -> Project Settings -> Time)
     void FixedUpdate(){
-        if (taskHandler.mode == 0)
+        if (!taskHandler.moving || taskHandler.mode == 1)
         {
             return;
         }

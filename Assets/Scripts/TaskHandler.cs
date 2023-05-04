@@ -15,6 +15,9 @@ public class TaskHandler : MonoBehaviour
     public Transform dockingPoint;
     public Transform objectToDock;
 
+    public Vector3 initialObjectToDockPosition;
+    public Quaternion initialObjectToDockRotation;
+
     public float collisionXmin;
     public float collisionXmax;
     public float collisionYmin;
@@ -22,7 +25,8 @@ public class TaskHandler : MonoBehaviour
     public float collisionZmin;
     public float collisionZmax;
 
-    public int mode = 0; //0 is idle, 1 is touchMovement and 2 is HOMER
+    public bool moving = false; //false is idle, true is moving
+    public int mode = 0; //0 is touch, 1 is HOMER
 
     private float sceneScale;
 
@@ -37,6 +41,9 @@ public class TaskHandler : MonoBehaviour
         }     
         dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
         objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
+
+        initialObjectToDockPosition = objectToDock.position;
+        initialObjectToDockRotation = objectToDock.rotation;
 
         //Initialize collision list with office boundary
         Vector3 officeOffset = GameObject.Find("Office").transform.position;
@@ -55,16 +62,21 @@ public class TaskHandler : MonoBehaviour
         currentPairIndex++;
         if (currentPairIndex < children.Count)
         {
+            children[currentPairIndex].gameObject.SetActive(true);
+            
             dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
             objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
-            children[currentPairIndex].gameObject.SetActive(true);
+            
+            initialObjectToDockPosition = objectToDock.position;
+            initialObjectToDockRotation = objectToDock.rotation;
+            
         }
         else
         {
             Debug.Log("All tasks completed");
         }
 
-        if (currentPairIndex == 2){
+        if (currentPairIndex == 4){
             //find object called "Office" and "Glass"
             GameObject office = GameObject.Find("Office");
             GameObject glass = GameObject.Find("Glass");
