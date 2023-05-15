@@ -6,12 +6,10 @@ using System;
 
 public class TaskHandler : MonoBehaviour
 {
-
-    //List of children objects
-    public List<GameObject> children = new List<GameObject>();
-
     //Current pair of objects being moved
     public int currentPairIndex = 0;
+
+    public List<List<GameObject>> pairs = new List<List<GameObject>>();
 
     //Docking point and object to dock
     public Transform dockingPoint;
@@ -29,6 +27,8 @@ public class TaskHandler : MonoBehaviour
 
     public bool moving = false; //false is idle, true is moving
     public int mode = 0; //0 is touch, 1 is HOMER
+    public int phase = 0; //0 is training, 1 is test
+    public bool finished = false;
 
     private float sceneScale;
 
@@ -38,15 +38,30 @@ public class TaskHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Setup training phase and all pairs
+        phase = 0;
+        finished = false;
         initializeLogFile();
         sceneScale = GameObject.Find("Docking Task Scene").transform.localScale.x;
-        //Get all children objects
-        foreach (Transform child in transform)
+        
+        List<GameObject> trainingPairs = new List<GameObject>();
+        List<GameObject> testPairs = new List<GameObject>();
+        
+        //get all children objects from "Training" and "Test" gameobjects
+        foreach (Transform child in GameObject.Find("Training").transform)
         {
-            children.Add(child.gameObject);
-        }     
-        dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
-        objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
+            trainingPairs.Add(child.gameObject);
+        }
+        foreach (Transform child in GameObject.Find("Test").transform)
+        {
+            testPairs.Add(child.gameObject);
+        }
+
+        pairs.Add(trainingPairs);
+        pairs.Add(testPairs);
+
+        dockingPoint = pairs[phase][currentPairIndex].transform.Find("DockingPoint");
+        objectToDock = pairs[phase][currentPairIndex].transform.Find("ObjectToDock");
 
         initialObjectToDockPosition = objectToDock.position;
         initialObjectToDockRotation = objectToDock.rotation;
@@ -64,14 +79,19 @@ public class TaskHandler : MonoBehaviour
 
     public void nextPair()
     {
-        children[currentPairIndex].gameObject.SetActive(false);
+        //Reset to initial position and rotation before moving to next pair
+        objectToDock.position = initialObjectToDockPosition;
+        objectToDock.rotation = initialObjectToDockRotation;
+        pairs[phase][currentPairIndex].gameObject.SetActive(false);
+        
         currentPairIndex++;
-        if (currentPairIndex < children.Count)
+        
+        if (currentPairIndex < pairs[phase].Count)
         {
-            children[currentPairIndex].gameObject.SetActive(true);
+            pairs[phase][currentPairIndex].gameObject.SetActive(true);
             
-            dockingPoint = children[currentPairIndex].transform.Find("DockingPoint");
-            objectToDock = children[currentPairIndex].transform.Find("ObjectToDock");
+            dockingPoint = pairs[phase][currentPairIndex].transform.Find("DockingPoint");
+            objectToDock = pairs[phase][currentPairIndex].transform.Find("ObjectToDock");
             
             initialObjectToDockPosition = objectToDock.position;
             initialObjectToDockRotation = objectToDock.rotation;
@@ -79,7 +99,19 @@ public class TaskHandler : MonoBehaviour
         }
         else
         {
-            Debug.Log("All tasks completed");
+            if (phase == 0){
+                currentPairIndex = 0;
+                pairs[phase][currentPairIndex].gameObject.SetActive(true);
+                
+                dockingPoint = pairs[phase][currentPairIndex].transform.Find("DockingPoint");
+                objectToDock = pairs[phase][currentPairIndex].transform.Find("ObjectToDock");   
+                
+                initialObjectToDockPosition = objectToDock.position;
+                initialObjectToDockRotation = objectToDock.rotation;
+            }
+            else{
+                finished = true;
+            }
         }
 
         if (currentPairIndex == 4){
@@ -109,6 +141,20 @@ public class TaskHandler : MonoBehaviour
         }
     }
 
+
+    public void startTest(){
+        pairs[phase][currentPairIndex].gameObject.SetActive(false);
+        
+        phase = 1;
+        currentPairIndex = 0;
+        pairs[phase][currentPairIndex].gameObject.SetActive(true);
+        dockingPoint = pairs[phase][currentPairIndex].transform.Find("DockingPoint");
+        objectToDock = pairs[phase][currentPairIndex].transform.Find("ObjectToDock");
+        
+        initialObjectToDockPosition = objectToDock.position;
+        initialObjectToDockRotation = objectToDock.rotation;
+    }
+
     public void initializeLogFile(){
         // Set the directory path
         string directoryPath = Application.dataPath + "/UserTestData/";
@@ -135,7 +181,6 @@ public class TaskHandler : MonoBehaviour
             }
         }
     }
-
 
     public void logData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
         //open file on filePath

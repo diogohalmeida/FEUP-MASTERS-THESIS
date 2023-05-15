@@ -31,7 +31,7 @@ public class Homer : MonoBehaviour
 
         //If player is holding the HTC Vive controller trigger
         //Debug.Log(SteamVR_Actions._default.GrabPinch.GetState(SteamVR_Input_Sources.RightHand));
-        if (!taskHandler.moving || taskHandler.mode == 0)
+        if ((!taskHandler.moving || taskHandler.mode == 0) && taskHandler.phase == 1)
         {
             return;
         }

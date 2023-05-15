@@ -28,28 +28,43 @@ public class DockingHandler : MonoBehaviour
     }
 
     void Update(){
-        if (!taskHandler.moving)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                taskHandler.moving = true;
-                endTime = DateTime.Now.AddMinutes(maxTime);
-            }
+        if (taskHandler.finished){
             return;
-        }else{
-            if (DateTime.Now >= endTime && !docking){
-                taskHandler.logData(false, TimeSpan.Zero, 0, 0);
-                nextTask();
-                //Debug.Log("Time is up!");
+        }
+        if (taskHandler.phase == 0){
+            if (Input.GetKeyDown(KeyCode.Space)){
+                taskHandler.nextPair();
+            }
+            else if (Input.GetKeyDown(KeyCode.Return)){
+                taskHandler.startTest();
             }
         }
+        else{
+            if (!taskHandler.moving){
+                if (Input.GetKeyDown(KeyCode.Space)){
+                    taskHandler.moving = true;
+                    endTime = DateTime.Now.AddMinutes(maxTime);
+                }
+            }else{
+                if (DateTime.Now >= endTime && !docking){
+                    taskHandler.logData(false, TimeSpan.Zero, 0, 0);
+                    nextTask();
+                }
+            }
+        }
+        
     }
 
     //FixedUpdate is called 50 times per second (can change in Edit -> Project Settings -> Time) 
     void FixedUpdate() 
     {
+
+        if (taskHandler.finished){
+            updateFinishedUI();
+            return;
+        }
         
-        if (!taskHandler.moving)
+        if (!taskHandler.moving && taskHandler.phase == 1)
         {
             updateDistanceRotationUI(0,0,0);
             updateStatusUI(2);
@@ -64,8 +79,8 @@ public class DockingHandler : MonoBehaviour
 
         float distanceObjectToDP = Vector3.Distance(dockingPointCenter, objectToDockCenter);
 
-        Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
-        Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
+        //Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
+        //Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
         //Calculate angle between dockingPoint and objectToDock
         float angle = Quaternion.Angle(taskHandler.dockingPoint.transform.rotation, taskHandler.objectToDock.transform.rotation);
 
@@ -89,12 +104,18 @@ public class DockingHandler : MonoBehaviour
             
             if (DateTime.Now >= endDockingTime) 
             {
-                TimeSpan timeLeft = endTime.Subtract(DateTime.Now);
-                TimeSpan completionTime = TimeSpan.FromMinutes(maxTime).Subtract(timeLeft);
-                taskHandler.logData(true, completionTime.Subtract(TimeSpan.FromSeconds(5)), distanceObjectToDP, angle);
-                nextTask();
-                //Debug.Log("Docking successful!");
+                if (taskHandler.phase == 1){
+                    TimeSpan timeLeft = endTime.Subtract(DateTime.Now);
+                    TimeSpan completionTime = TimeSpan.FromMinutes(maxTime).Subtract(timeLeft);
+                    taskHandler.logData(true, completionTime.Subtract(TimeSpan.FromSeconds(5)), distanceObjectToDP, angle);
+                    nextTask();
+                    //Debug.Log("Docking successful!");
+                }
+                else{
+                    taskHandler.nextPair();
+                }
                 docking = false;
+                
             }
             updateStatusUI(1);
         }
@@ -111,6 +132,18 @@ public class DockingHandler : MonoBehaviour
 
     }
 
+    void updateFinishedUI(){
+        Transform taskText = GameObject.Find("TaskText").transform;
+        Transform distanceText = GameObject.Find("DistanceText").transform;
+        Transform rotationText = GameObject.Find("RotationText").transform;
+        Transform statusText = GameObject.Find("StatusText").transform;
+        taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Tasks Finished";
+        distanceText.GetComponent<TMPro.TextMeshProUGUI>().text = "";
+        rotationText.GetComponent<TMPro.TextMeshProUGUI>().text = "";
+        statusText.GetComponent<TMPro.TextMeshProUGUI>().text = "THANK YOU FOR PARTICIPATING!";
+        statusText.GetComponent<TMPro.TextMeshProUGUI>().color = Color.green;
+    }
+
 
     void updateDistanceRotationUI(float maximumDistance, float distanceObjectToDP, float angle){
         //Update GUI
@@ -119,13 +152,19 @@ public class DockingHandler : MonoBehaviour
         Transform rotationText = GameObject.Find("RotationText").transform;
 
         //Change text from taskText to current task
-        if (taskHandler.mode == 0){
-            taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Task " + (taskHandler.currentPairIndex + 1) + "/" + taskHandler.children.Count + " - Touch";
+        if (taskHandler.phase == 0){
+            taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Training Mode - Press SPACE to move another object or ENTER to start the test";
         }
-        else if (taskHandler.mode == 1){
-            taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Task " + (taskHandler.currentPairIndex + 1) + "/" + taskHandler.children.Count + " - HOMER";
+        else{
+            if (taskHandler.mode == 0){
+                taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Task " + (taskHandler.currentPairIndex + 1) + "/" + taskHandler.pairs[taskHandler.phase].Count + " - Touch";
+            }
+            else if (taskHandler.mode == 1){
+                taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Task " + (taskHandler.currentPairIndex + 1) + "/" + taskHandler.pairs[taskHandler.phase].Count + " - HOMER";
 
+            }
         }
+        
 
         //Change text from distanceText to distance from objectToDock to dockingPoint
         distanceText.GetComponent<TMPro.TextMeshProUGUI>().text = "Target Distance (max " + maximumDistance.ToString("F2") + "m): " + distanceObjectToDP.ToString("F2") + "m";
