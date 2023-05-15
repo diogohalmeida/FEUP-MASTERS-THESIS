@@ -38,6 +38,7 @@ public class DockingHandler : MonoBehaviour
             return;
         }else{
             if (DateTime.Now >= endTime && !docking){
+                taskHandler.logData(false, TimeSpan.Zero, 0, 0);
                 nextTask();
                 //Debug.Log("Time is up!");
             }
@@ -72,8 +73,10 @@ public class DockingHandler : MonoBehaviour
         float angleY = Vector3.Angle(taskHandler.dockingPoint.up, taskHandler.objectToDock.up);
         float angleZ = Vector3.Angle(taskHandler.dockingPoint.right, taskHandler.objectToDock.right);
 
+        float maximumDistance = distanceCameraToDP * distanceFactor;
+
         //Check if distance between dockingPoint and objectToDock is less or equal than 2% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 10 degrees    
-        if (distanceObjectToDP <= distanceCameraToDP * distanceFactor && angleX <= maximumAngle && angleY <= maximumAngle && angleZ <= maximumAngle)
+        if (distanceObjectToDP <= maximumDistance && angleX <= maximumAngle && angleY <= maximumAngle && angleZ <= maximumAngle)
         {
             if (!docking)
             {
@@ -86,6 +89,9 @@ public class DockingHandler : MonoBehaviour
             
             if (DateTime.Now >= endDockingTime) 
             {
+                TimeSpan timeLeft = endTime.Subtract(DateTime.Now);
+                TimeSpan completionTime = TimeSpan.FromMinutes(maxTime).Subtract(timeLeft);
+                taskHandler.logData(true, completionTime.Subtract(TimeSpan.FromSeconds(5)), distanceObjectToDP, angle);
                 nextTask();
                 //Debug.Log("Docking successful!");
                 docking = false;
@@ -100,13 +106,13 @@ public class DockingHandler : MonoBehaviour
             docking = false;
         }
 
-        updateDistanceRotationUI(distanceCameraToDP, distanceObjectToDP, angle);
+        updateDistanceRotationUI(maximumDistance, distanceObjectToDP, angle);
         updateTimerGUI();
 
     }
 
 
-    void updateDistanceRotationUI(float distanceCameraToDP, float distanceObjectToDP, float angle){
+    void updateDistanceRotationUI(float maximumDistance, float distanceObjectToDP, float angle){
         //Update GUI
         Transform taskText = GameObject.Find("TaskText").transform;
         Transform distanceText = GameObject.Find("DistanceText").transform;
@@ -122,7 +128,7 @@ public class DockingHandler : MonoBehaviour
         }
 
         //Change text from distanceText to distance from objectToDock to dockingPoint
-        distanceText.GetComponent<TMPro.TextMeshProUGUI>().text = "Target Distance (max " + (distanceCameraToDP * distanceFactor).ToString("F2") + "m): " + distanceObjectToDP.ToString("F2") + "m";
+        distanceText.GetComponent<TMPro.TextMeshProUGUI>().text = "Target Distance (max " + maximumDistance.ToString("F2") + "m): " + distanceObjectToDP.ToString("F2") + "m";
         //Change text from rotationXText to angle between dockingPoint and objectToDock
         rotationText.GetComponent<TMPro.TextMeshProUGUI>().text = "Angle Mismatch (max " + maximumAngle + "°): " + angle.ToString("F2") + "°";
     }

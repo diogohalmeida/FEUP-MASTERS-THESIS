@@ -62,3 +62,6 @@ crashlytics-build.properties
 #IDE
 .vscode/
 .idea/
+
+UserTestData/
+UserTestData.meta

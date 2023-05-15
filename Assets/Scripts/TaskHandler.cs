@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using System;
 
 public class TaskHandler : MonoBehaviour
 {
@@ -30,9 +32,13 @@ public class TaskHandler : MonoBehaviour
 
     private float sceneScale;
 
+    private string filePath;
+
+
     // Start is called before the first frame update
     void Start()
     {
+        initializeLogFile();
         sceneScale = GameObject.Find("Docking Task Scene").transform.localScale.x;
         //Get all children objects
         foreach (Transform child in transform)
@@ -100,6 +106,48 @@ public class TaskHandler : MonoBehaviour
             collisionZmax = 350;
                 
             
+        }
+    }
+
+    public void initializeLogFile(){
+        // Set the directory path
+        string directoryPath = Application.dataPath + "/UserTestData/";
+
+        // Create the directory if it doesn't exist
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        // Set the file path
+        filePath = directoryPath + System.DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss") + ".csv";
+
+        //log filePath
+        Debug.Log(filePath);
+
+        // Check if the file exists
+        if (!File.Exists(filePath))
+        {
+            // Create a new file and write the column headers
+            using (StreamWriter sw = File.CreateText(filePath))
+            {
+                sw.WriteLine("Task,Technique,Time,DistanceMismatch,RotationMismatch");
+            }
+        }
+    }
+
+
+    public void logData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+        //open file on filePath
+        using (StreamWriter sw = File.AppendText(filePath))
+        {
+            //write data
+            if (completed){
+                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch);
+            }
+            else{
+                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch);
+            }
         }
     }
 }
