@@ -11,7 +11,7 @@ public class DockingHandler : MonoBehaviour
 
     private TaskHandler taskHandler;
 
-    private float distanceFactor = 0.02f;
+    private float distanceFactor = 0.015f;
 
     private float maximumAngle = 10f;
 
@@ -117,7 +117,7 @@ public class DockingHandler : MonoBehaviour
 
         float maximumDistance = distanceCameraToDP * distanceFactor;
 
-        //Check if distance between dockingPoint and objectToDock is less or equal than 2% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 10 degrees    
+        //Check if distance between dockingPoint and objectToDock is less or equal than 1.5% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 10 degrees    
         if (distanceObjectToDP <= maximumDistance && angleX <= maximumAngle && angleY <= maximumAngle && angleZ <= maximumAngle)
         {
             if (!docking)
