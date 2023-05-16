@@ -49,15 +49,19 @@ public class Homer : MonoBehaviour
                  //Move the object to the position of the right hand
                 Vector3 handDeltaTranslation = rightHand.position - previousHandPosition;
                 Quaternion handDeltaRotation = rightHand.rotation * Quaternion.Inverse(previousHandRotation);
-                if (handDeltaTranslation.magnitude > 0.00035f)
-                {
-                    timeSpentTranslating += Time.deltaTime;
-                }
+                
+                if (taskHandler.phase == 1){
+                    if (handDeltaTranslation.magnitude > 0.00035f)
+                    {
+                        timeSpentTranslating += Time.deltaTime;
+                    }
 
-                if (handDeltaRotation != Quaternion.identity)
-                {
-                    timeSpentRotating += Time.deltaTime;
+                    if (handDeltaRotation != Quaternion.identity)
+                    {
+                        timeSpentRotating += Time.deltaTime;
+                    }
                 }
+                
 
                 Vector3 pivotPoint = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
 
@@ -74,8 +78,6 @@ public class Homer : MonoBehaviour
                 {
                     taskHandler.objectToDock.transform.position = newPosition;
                 }
-                //taskHandler.objectToDock.transform.rotation = previousObjectRotation * handDeltaRotation;
-
                 RotateAround(taskHandler.objectToDock.transform, pivotPoint, handDeltaRotation);
                 
                 previousHandPosition = rightHand.position;
