@@ -68,6 +68,9 @@ public class TouchMovement : MonoBehaviour
     private bool rotationClockwise;
 
     private float translationArrowScale = 0.3f;
+
+    public float timeSpentRotating = 0.0f;
+    public float timeSpentTranslating = 0.0f;
     
 
     // Start is called before the first frame update
@@ -102,7 +105,17 @@ public class TouchMovement : MonoBehaviour
         }
         currentState = stateCheck();
 
-        //Debug.Log(currentState);    
+        if (taskHandler.phase == 1){
+            if (currentState == State.RotationX || currentState == State.RotationY || currentState == State.RotationZ){
+                timeSpentRotating += Time.deltaTime;
+            }
+        
+            if (currentState == State.TranslationXZ || currentState == State.TranslationY){
+                timeSpentTranslating += Time.deltaTime;
+            }
+        }
+
+        Debug.Log(currentState);    
         //Debug.Log("Error Threshold: " + thresholdError);
         //Debug.Log("Check Interval: " + stateCheckInterval);
     }
@@ -777,6 +790,11 @@ public class TouchMovement : MonoBehaviour
             translationArrowY1.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
             translationArrowY2.transform.localScale = new Vector3(scalingFactorArrow, scalingFactorArrow, scalingFactorArrow);
         }
+    }
+
+    public void resetTimes(){
+        this.timeSpentTranslating = 0;
+        this.timeSpentRotating = 0;
     }
     
 }

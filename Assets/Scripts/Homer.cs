@@ -13,11 +13,12 @@ public class Homer : MonoBehaviour
     private Quaternion previousHandRotation;
     private Quaternion previousObjectRotation;
 
-    private float velocityModifierTranslations = 5f;
-
     private float scalingConstant = 1f;
 
     private TaskHandler taskHandler;
+
+    public float timeSpentRotating = 0.0f;
+    public float timeSpentTranslating = 0.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -48,17 +49,25 @@ public class Homer : MonoBehaviour
                  //Move the object to the position of the right hand
                 Vector3 handDeltaTranslation = rightHand.position - previousHandPosition;
                 Quaternion handDeltaRotation = rightHand.rotation * Quaternion.Inverse(previousHandRotation);
+                if (handDeltaTranslation.magnitude > 0.00035f)
+                {
+                    timeSpentTranslating += Time.deltaTime;
+                }
+
+                if (handDeltaRotation != Quaternion.identity)
+                {
+                    timeSpentRotating += Time.deltaTime;
+                }
 
                 Vector3 pivotPoint = taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center;
 
                 float velocity = handDeltaTranslation.magnitude / Time.deltaTime;
 
-                Debug.Log(velocity);
 
                 float scalingFactorVelocity = velocity / scalingConstant;
-                float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.25f;
+                float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)/Vector3.Distance(Camera.main.transform.position, rightHand.position);
 
-                Vector3 newPosition = handDeltaTranslation * (velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance + taskHandler.objectToDock.transform.position;
+                Vector3 newPosition = handDeltaTranslation * (Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance + taskHandler.objectToDock.transform.position;
                 if (newPosition.x > taskHandler.collisionXmin && newPosition.x < taskHandler.collisionXmax && 
                 newPosition.y > taskHandler.collisionYmin && newPosition.y < taskHandler.collisionYmax && 
                 newPosition.z > taskHandler.collisionZmin && newPosition.z < taskHandler.collisionZmax)
@@ -88,5 +97,10 @@ public class Homer : MonoBehaviour
         rotation.ToAngleAxis(out var angle, out var axis);
 
         objectTransform.RotateAround(pivotPoint, axis, angle);
+    }
+
+    public void resetTimes(){
+        this.timeSpentTranslating = 0;
+        this.timeSpentRotating = 0;
     }
 }           

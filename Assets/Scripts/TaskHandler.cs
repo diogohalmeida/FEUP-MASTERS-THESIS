@@ -177,21 +177,21 @@ public class TaskHandler : MonoBehaviour
             // Create a new file and write the column headers
             using (StreamWriter sw = File.CreateText(filePath))
             {
-                sw.WriteLine("Task,Technique,Time,DistanceMismatch,RotationMismatch");
+                sw.WriteLine("Task,Technique,Time,DistanceMismatch,RotationMismatch,TimeSpentTranslating,TimeSpentRotating");
             }
         }
     }
 
-    public void logData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+    public void logData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch, float timeSpentTranslating, float timeSpentRotating){
         //open file on filePath
         using (StreamWriter sw = File.AppendText(filePath))
         {
             //write data
             if (completed){
-                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch);
+                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch + "," + timeSpentTranslating + "," + timeSpentRotating);
             }
             else{
-                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch);
+                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch + "," + timeSpentTranslating + "," + timeSpentRotating);
             }
         }
     }
