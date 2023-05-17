@@ -181,7 +181,7 @@ public class TaskHandler : MonoBehaviour
             // Create a new file and write the column headers
             using (StreamWriter sw = File.CreateText(filePathTouch))
             {
-                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ");
+                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ");
             }
         }
 
@@ -191,7 +191,7 @@ public class TaskHandler : MonoBehaviour
             // Create a new file and write the column headers
             using (StreamWriter sw = File.CreateText(filePathHOMER))
             {
-                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslation,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslation,TotalRotationX,TotalRotationY,TotalRotationZ");
+                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentTranslation,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslation,TotalRotationX,TotalRotationY,TotalRotationZ");
             }
         }
 
@@ -201,7 +201,7 @@ public class TaskHandler : MonoBehaviour
             // Create a new file and write the column headers
             using (StreamWriter sw = File.CreateText(filePathTouchFrames))
             {
-                sw.WriteLine("Task,Timestamp,TouchNumber,TouchPosition1,TouchPosition2,State,ObjectPosition,ObjectRotation");
+                sw.WriteLine("Task,Timestamp,State,TouchCount,TouchPosition1,TouchPosition2,ObjectPosition,ObjectRotation,DistanceMismatchX,DistanceMismatchY,DistanceMismatchZ,RotationMismatchX,RotationMismatchY,RotationMismatchZ");
             }
         }
 
@@ -211,7 +211,7 @@ public class TaskHandler : MonoBehaviour
             // Create a new file and write the column headers
             using (StreamWriter sw = File.CreateText(filePathHOMERFrames))
             {
-                sw.WriteLine("Task,Timestamp,ControllerPosition,ControllerRotation,ObjectPosition,ObjectRotation");
+                sw.WriteLine("Task,Timestamp,isGrabbing,ControllerPosition,ControllerRotation,ObjectPosition,ObjectRotation,DistanceMismatchX,DistanceMismatchY,DistanceMismatchZ,RotationMismatchX,RotationMismatchY,RotationMismatchZ");
             }
         }
     }

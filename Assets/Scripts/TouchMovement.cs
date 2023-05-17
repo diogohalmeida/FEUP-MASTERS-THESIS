@@ -101,25 +101,17 @@ public class TouchMovement : MonoBehaviour
             return;
         }
         if (thresholdError == 0){
-            if (rotationArrow1 != null && rotationArrow2 != null){
-                Destroy(rotationArrow1);
-                Destroy(rotationArrow2);
-            }
-            if (translationArrowX1 != null && translationArrowX2 != null && translationArrowZ1 != null && translationArrowZ2 != null){
-                Destroy(translationArrowX1);
-                Destroy(translationArrowX2);
-                Destroy(translationArrowZ1);
-                Destroy(translationArrowZ2);
-            }
-            if (translationArrowY1 != null && translationArrowY2 != null){
-                Destroy(translationArrowY1);
-                Destroy(translationArrowY2);
-            }
+            handleIndicators();
             currentState = State.Idle;
             thresholdError = thresholdErrorInitial;
         }
         currentState = stateCheck();
-        Debug.Log(currentState);    
+        
+        if (taskHandler.phase == 1){
+            logTouchDataFrame();
+        }
+        
+        //Debug.Log(currentState);    
         //Debug.Log("Error Threshold: " + thresholdError);
         //Debug.Log("Check Interval: " + stateCheckInterval);
     }
@@ -796,6 +788,8 @@ public class TouchMovement : MonoBehaviour
                 return Input.GetTouch(i);
             }
         }
+
+        //if touch is not found, return the first touch 
         if (touchNumber == 1){
             touch1ID = Input.GetTouch(0).fingerId;
         }
@@ -804,6 +798,23 @@ public class TouchMovement : MonoBehaviour
         }
         
         return Input.GetTouch(0);
+    }
+
+    private void handleIndicators(){
+        if (rotationArrow1 != null && rotationArrow2 != null){
+                Destroy(rotationArrow1);
+                Destroy(rotationArrow2);
+        }
+        if (translationArrowX1 != null && translationArrowX2 != null && translationArrowZ1 != null && translationArrowZ2 != null){
+            Destroy(translationArrowX1);
+            Destroy(translationArrowX2);
+            Destroy(translationArrowZ1);
+            Destroy(translationArrowZ2);
+        }
+        if (translationArrowY1 != null && translationArrowY2 != null){
+            Destroy(translationArrowY1);
+            Destroy(translationArrowY2);
+        }
     }
 
 
@@ -858,18 +869,72 @@ public class TouchMovement : MonoBehaviour
     }
 
 
-    public void logTouchData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+    public void logTouchData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatchX, float rotationMismatchY, float rotationMismatchZ){
         //open file on filePath
         using (StreamWriter sw = File.AppendText(taskHandler.filePathTouch))
         {
             //write data
-            //Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ
+            //Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ
+            string completionTime;
             if (completed){
-                sw.WriteLine((taskHandler.currentPairIndex+1) + "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch + "," + this.timeSpentIdle + "," + this.timeSpentTranslationXZ + "," + this.timeSpentTranslationY + "," + this.timeSpentRotationX + "," + this.timeSpentRotationY + "," + this.timeSpentRotationZ + "," + this.totalTranslationXZ + "," + this.totalTranslationY + "," + this.totalRotationX + "," + this.totalRotationY + "," + this.totalRotationZ);
+                completionTime = time.TotalSeconds.ToString("F2");
             }
             else{
-                sw.WriteLine((taskHandler.currentPairIndex+1) + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch + "," + this.timeSpentIdle + "," + this.timeSpentTranslationXZ + "," + this.timeSpentTranslationY + "," + this.timeSpentRotationX + "," + this.timeSpentRotationY + "," + this.timeSpentRotationZ + "," + this.totalTranslationXZ + "," + this.totalTranslationY + "," + this.totalRotationX + "," + this.totalRotationY + "," + this.totalRotationZ);
+                completionTime = "NA";
             }
+
+            sw.WriteLine((taskHandler.currentPairIndex+1) + "," + completionTime + "," + distanceMismatch.ToString("F2") + ",(" + 
+                rotationMismatchX.ToString("F2") + ";" + rotationMismatchY.ToString("F2") + ";" + rotationMismatchZ.ToString("F2") + ")," + 
+                this.timeSpentIdle.ToString("F2") + "," + this.timeSpentTranslationXZ.ToString("F2") + "," + this.timeSpentTranslationY.ToString("F2") + "," + 
+                this.timeSpentRotationX.ToString("F2") + "," + this.timeSpentRotationY.ToString("F2") + "," + this.timeSpentRotationZ.ToString("F2") + "," + 
+                this.totalTranslationXZ.ToString("F2") + "," + this.totalTranslationY.ToString("F2") + "," + 
+                this.totalRotationX.ToString("F2") + "," + this.totalRotationY.ToString("F2") + "," + this.totalRotationZ.ToString("F2"));
+        }
+    }
+
+    public void logTouchDataFrame(){
+        float angleX = Vector3.Angle(taskHandler.dockingPoint.right, taskHandler.objectToDock.right);
+        float angleY = Vector3.Angle(taskHandler.dockingPoint.up, taskHandler.objectToDock.up);
+        float angleZ = Vector3.Angle(taskHandler.dockingPoint.forward, taskHandler.objectToDock.forward);
+        
+        Vector3 objectToDockCenter = taskHandler.objectToDock.GetComponent<MeshCollider>().bounds.center;
+        Vector3 dockingPointCenter = taskHandler.dockingPoint.GetComponent<MeshCollider>().bounds.center;
+
+        float distanceObjectToDPX = Math.Abs(objectToDockCenter.x - dockingPointCenter.x);
+        float distanceObjectToDPY = Math.Abs(objectToDockCenter.y - dockingPointCenter.y);
+        float distanceObjectToDPZ = Math.Abs(objectToDockCenter.z - dockingPointCenter.z);
+
+
+        //Task,Timestamp,State,TouchCount,TouchPosition1,TouchPosition2,ObjectPosition,ObjectRotation,DistanceMismatchX,DistanceMismatchY,DistanceMismatchZ,RotationMismatchX,RotationMismatchY,RotationMismatchZ
+        using (StreamWriter sw = File.AppendText(taskHandler.filePathTouchFrames))
+        {
+            string touchPosition1;
+            string touchPosition2;
+            if (Input.touchCount == 0){
+                touchPosition1 = "NA";
+                touchPosition2 = "NA";
+            }
+            else if (Input.touchCount == 1){
+                Touch touch1 = getTouchByID(touch1ID, 1);
+                
+                touchPosition1 = "(" + touch1.position.x.ToString("F2") + ";" + touch1.position.y.ToString("F2") + ")";
+                touchPosition2 = "NA";
+
+            }
+            else{
+                Touch touch1 = getTouchByID(touch1ID, 1);
+                Touch touch2 = getTouchByID(touch2ID, 2);
+
+                touchPosition1 = "(" + touch1.position.x.ToString("F2") + ";" + touch1.position.y.ToString("F2") + ")";
+                touchPosition2 = "(" + touch2.position.x.ToString("F2") + ";" + touch2.position.y.ToString("F2") + ")";
+            }
+
+            sw.WriteLine((taskHandler.currentPairIndex+1) + "," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "," + this.currentState + "," + Input.touchCount + "," +
+                touchPosition1 + "," + touchPosition2 + ",(" +
+                taskHandler.objectToDock.transform.position.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.z.ToString("F2") + "),(" +
+                taskHandler.objectToDock.transform.rotation.eulerAngles.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.z.ToString("F2") + "),(" +
+                distanceObjectToDPX.ToString("F2") + ";" + distanceObjectToDPY.ToString("F2") + ";" + distanceObjectToDPZ.ToString("F2") + "),(" +
+                angleX.ToString("F2") + ";" + angleY.ToString("F2") + ";" + angleZ.ToString("F2") + ")"); 
         }
     }
     

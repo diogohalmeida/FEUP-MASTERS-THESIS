@@ -110,15 +110,16 @@ public class Homer : MonoBehaviour
                 previousHandRotation = rightHand.rotation;
                 previousObjectRotation = taskHandler.objectToDock.transform.rotation;
             }
-            return;
-           
         }
         else{    
             if (taskHandler.phase == 1){
                 timeSpentIdle += Time.deltaTime;
             }
             isGrabbing = false;
-            return;
+        }
+
+        if (taskHandler.phase == 1){
+            logHomerDataFrame();
         }
 
     }
@@ -143,18 +144,49 @@ public class Homer : MonoBehaviour
     }
 
 
-    public void logHomerData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+    public void logHomerData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatchX, float rotationMismatchY, float rotationMismatchZ){
         //open file on filePath
         using (StreamWriter sw = File.AppendText(taskHandler.filePathHOMER))
         {
             //write data
-            //Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslation,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslation,TotalRotationX,TotalRotationY,TotalRotationZ
+            //Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentTranslation,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslation,TotalRotationX,TotalRotationY,TotalRotationZ
+            string completionTime;
             if (completed){
-                sw.WriteLine((taskHandler.currentPairIndex+1)+  "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch + "," + this.timeSpentIdle + "," + this.timeSpentTranslation + "," + this.timeSpentRotationX + "," + this.timeSpentRotationY + "," + this.timeSpentRotationZ + "," + this.totalTranslation + "," + this.totalRotationX + "," + this.totalRotationY + "," + this.totalRotationZ);
+                completionTime = time.TotalSeconds.ToString("F2");
             }
             else{
-                sw.WriteLine((taskHandler.currentPairIndex+1) + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch + "," + this.timeSpentIdle + "," + this.timeSpentTranslation + "," + this.timeSpentRotationX + "," + this.timeSpentRotationY + "," + this.timeSpentRotationZ + "," + this.totalTranslation + "," + this.totalRotationX + "," + this.totalRotationY + "," + this.totalRotationZ);
+                completionTime = "NA";
             }
+            sw.WriteLine((taskHandler.currentPairIndex+1)+  "," + completionTime + "," + distanceMismatch.ToString("F2") + ",(" + 
+                rotationMismatchX.ToString("F2") + ";" + rotationMismatchY.ToString("F2") + ";" + rotationMismatchZ.ToString("F2") + ")," + 
+                this.timeSpentIdle.ToString("F2") + "," + this.timeSpentTranslation.ToString("F2") + "," + 
+                this.timeSpentRotationX.ToString("F2") + "," + this.timeSpentRotationY.ToString("F2") + "," + this.timeSpentRotationZ.ToString("F2") + "," + 
+                this.totalTranslation.ToString("F2") + "," + this.totalRotationX.ToString("F2") + "," + this.totalRotationY.ToString("F2") + "," + this.totalRotationZ.ToString("F2"));
+        }
+    }
+
+    public void logHomerDataFrame(){
+        float angleX = Vector3.Angle(taskHandler.dockingPoint.right, taskHandler.objectToDock.right);
+        float angleY = Vector3.Angle(taskHandler.dockingPoint.up, taskHandler.objectToDock.up);
+        float angleZ = Vector3.Angle(taskHandler.dockingPoint.forward, taskHandler.objectToDock.forward);
+
+        Vector3 objectToDockCenter = taskHandler.objectToDock.GetComponent<MeshCollider>().bounds.center;
+        Vector3 dockingPointCenter = taskHandler.dockingPoint.GetComponent<MeshCollider>().bounds.center;
+
+        float distanceObjectToDPX = Math.Abs(objectToDockCenter.x - dockingPointCenter.x);
+        float distanceObjectToDPY = Math.Abs(objectToDockCenter.y - dockingPointCenter.y);
+        float distanceObjectToDPZ = Math.Abs(objectToDockCenter.z - dockingPointCenter.z);
+
+        //Task,Timestamp,isGrabbing,ControllerPosition,ControllerRotation,ObjectPosition,ObjectRotation,DistanceMismatchX,DistanceMismatchY,DistanceMismatchZ,RotationMismatchX,RotationMismatchY,RotationMismatchZ
+        using (StreamWriter sw = File.AppendText(taskHandler.filePathHOMERFrames))
+        {
+            sw.WriteLine((taskHandler.currentPairIndex+1) + "," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "," + isGrabbing + ",(" +
+            rightHand.position.x.ToString("F2") + ";" + rightHand.position.y.ToString("F2") + ";" + rightHand.position.z.ToString("F2") + "),(" +
+            rightHand.rotation.eulerAngles.x.ToString("F2") + ";" + rightHand.rotation.eulerAngles.y.ToString("F2") + ";" + rightHand.rotation.eulerAngles.z.ToString("F2") + "),(" + 
+            taskHandler.objectToDock.transform.position.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.z.ToString("F2") + "),(" +
+            taskHandler.objectToDock.transform.rotation.eulerAngles.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.z.ToString("F2") + "),(" +
+            distanceObjectToDPX.ToString("F2") + ";" + distanceObjectToDPY.ToString("F2") + ";" + distanceObjectToDPZ.ToString("F2") + "),(" + 
+            angleX.ToString("F2") + ";" + angleY.ToString("F2") + ";" + angleZ.ToString("F2") + ")");
         }
     }
 }           

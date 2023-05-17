@@ -11,7 +11,7 @@ public class DockingHandler : MonoBehaviour
 
     private TaskHandler taskHandler;
 
-    private float distanceFactor = 0.015f;
+    private float distanceFactor = 0.02f;
 
     private float maximumAngle = 10f;
 
@@ -23,6 +23,13 @@ public class DockingHandler : MonoBehaviour
 
     private TouchMovement touchMovement;
     private Homer homer;
+
+    private float distanceMismatch;
+
+    private float rotationMismatchX;
+    private float rotationMismatchY;
+    private float rotationMismatchZ;
+
 
     // Start is called before the first frame update
     void Start()
@@ -52,12 +59,12 @@ public class DockingHandler : MonoBehaviour
                 }
             }else{
                 if (DateTime.Now >= endTime && !docking){
-                    logAndReset(true, TimeSpan.Zero, 0, 0);
+                    logAndReset(false, TimeSpan.Zero);
                     nextTask();
                     return;
                 }
                 if (Input.GetKeyDown(KeyCode.Return)){
-                    logAndReset(false, TimeSpan.Zero, 0, 0);
+                    logAndReset(false, TimeSpan.Zero);
                     nextTask();
                     return;
                 }
@@ -78,6 +85,7 @@ public class DockingHandler : MonoBehaviour
         if (!taskHandler.moving && taskHandler.phase == 1)
         {
             updateDistanceRotationUI(0,0,0);
+            updateTimerUI();
             updateStatusUI(2);
             return;
         }
@@ -88,21 +96,21 @@ public class DockingHandler : MonoBehaviour
         float distanceCameraToDP = Vector3.Distance(Camera.main.transform.position, dockingPointCenter);
 
 
-        float distanceObjectToDP = Vector3.Distance(dockingPointCenter, objectToDockCenter);
+        distanceMismatch = Vector3.Distance(dockingPointCenter, objectToDockCenter);
 
         //Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
         //Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
         //Calculate angle between dockingPoint and objectToDock
         float angle = Quaternion.Angle(taskHandler.dockingPoint.transform.rotation, taskHandler.objectToDock.transform.rotation);
 
-        float angleX = Vector3.Angle(taskHandler.dockingPoint.forward, taskHandler.objectToDock.forward);
-        float angleY = Vector3.Angle(taskHandler.dockingPoint.up, taskHandler.objectToDock.up);
-        float angleZ = Vector3.Angle(taskHandler.dockingPoint.right, taskHandler.objectToDock.right);
+        rotationMismatchX = Vector3.Angle(taskHandler.dockingPoint.right, taskHandler.objectToDock.right);
+        rotationMismatchY = Vector3.Angle(taskHandler.dockingPoint.up, taskHandler.objectToDock.up);
+        rotationMismatchZ = Vector3.Angle(taskHandler.dockingPoint.forward, taskHandler.objectToDock.forward);
 
         float maximumDistance = distanceCameraToDP * distanceFactor;
 
-        //Check if distance between dockingPoint and objectToDock is less or equal than 1.5% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 10 degrees    
-        if (distanceObjectToDP <= maximumDistance && angleX <= maximumAngle && angleY <= maximumAngle && angleZ <= maximumAngle)
+        //Check if distance between dockingPoint and objectToDock is less or equal than 2% of distance from camera to dockingPoint and angle between dockingPoint and objectToDock is less or equal than 10 degrees    
+        if (distanceMismatch <= maximumDistance && rotationMismatchX <= maximumAngle && rotationMismatchY <= maximumAngle && rotationMismatchZ <= maximumAngle)
         {
             if (!docking)
             {
@@ -119,7 +127,7 @@ public class DockingHandler : MonoBehaviour
                     TimeSpan timeLeft = endTime.Subtract(DateTime.Now);
                     TimeSpan completionTime = TimeSpan.FromMinutes(maxTime).Subtract(timeLeft);
 
-                    logAndReset(true, completionTime, distanceObjectToDP, angle);
+                    logAndReset(true, completionTime);
                     nextTask();
                     //Debug.Log("Docking successful!");
                 }
@@ -139,8 +147,8 @@ public class DockingHandler : MonoBehaviour
             docking = false;
         }
 
-        updateDistanceRotationUI(maximumDistance, distanceObjectToDP, angle);
-        updateTimerGUI();
+        updateDistanceRotationUI(maximumDistance, distanceMismatch, angle);
+        updateTimerUI();
 
     }
 
@@ -165,7 +173,7 @@ public class DockingHandler : MonoBehaviour
 
         //Change text from taskText to current task
         if (taskHandler.phase == 0){
-            taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Training Mode - Press SPACE to move another object or ENTER to start the test";
+            taskText.GetComponent<TMPro.TextMeshProUGUI>().text = "Training Mode";
         }
         else{
             if (taskHandler.mode == 0){
@@ -198,7 +206,7 @@ public class DockingHandler : MonoBehaviour
                 statusText.GetComponent<TMPro.TextMeshProUGUI>().color = Color.green;
                 break;
             case 2:
-                statusText.GetComponent<TMPro.TextMeshProUGUI>().text = "PRESS SPACE TO START";
+                statusText.GetComponent<TMPro.TextMeshProUGUI>().text = "WAITING FOR NEXT TASK";
                 statusText.GetComponent<TMPro.TextMeshProUGUI>().color = Color.white;
                 break;
         }
@@ -223,7 +231,7 @@ public class DockingHandler : MonoBehaviour
         }
     }
 
-    void updateTimerGUI(){
+    void updateTimerUI(){
         Transform timerText = GameObject.Find("TimerText").transform;
         if (taskHandler.moving){
             //Countdown from endTime         
@@ -262,13 +270,13 @@ public class DockingHandler : MonoBehaviour
         }
     }
 
-    private void logAndReset(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+    private void logAndReset(bool completed, TimeSpan time){
         if (taskHandler.mode == 0){
-            touchMovement.logTouchData(completed, time, distanceMismatch, rotationMismatch);
+            touchMovement.logTouchData(completed, time, distanceMismatch, rotationMismatchX, rotationMismatchY, rotationMismatchZ);
             touchMovement.resetLog();
         }
         else{
-            homer.logHomerData(completed, time, distanceMismatch, rotationMismatch);
+            homer.logHomerData(completed, time, distanceMismatch, rotationMismatchX, rotationMismatchY, rotationMismatchZ);
             homer.resetLog();
         }
     }
