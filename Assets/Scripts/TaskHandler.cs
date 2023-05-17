@@ -32,7 +32,11 @@ public class TaskHandler : MonoBehaviour
 
     private float sceneScale;
 
-    private string filePath;
+    //For logging
+    public string filePathTouch;
+    public string filePathHOMER;
+    public string filePathTouchFrames;
+    public string filePathHOMERFrames;
 
 
     // Start is called before the first frame update
@@ -41,7 +45,7 @@ public class TaskHandler : MonoBehaviour
         //Setup training phase and all pairs
         phase = 0;
         finished = false;
-        initializeLogFile();
+        initializeLogFiles();
         sceneScale = GameObject.Find("Docking Task Scene").transform.localScale.x;
         
         List<GameObject> trainingPairs = new List<GameObject>();
@@ -155,9 +159,9 @@ public class TaskHandler : MonoBehaviour
         initialObjectToDockRotation = objectToDock.rotation;
     }
 
-    public void initializeLogFile(){
+    public void initializeLogFiles(){
         // Set the directory path
-        string directoryPath = Application.dataPath + "/UserTestData/";
+        string directoryPath = Application.dataPath + "/UserTestData/" + System.DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss") + "/";
 
         // Create the directory if it doesn't exist
         if (!Directory.Exists(directoryPath))
@@ -166,32 +170,48 @@ public class TaskHandler : MonoBehaviour
         }
 
         // Set the file path
-        filePath = directoryPath + System.DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss") + ".csv";
+        filePathTouch = directoryPath + "touch.csv";
+        filePathHOMER = directoryPath + "homer.csv";
+        filePathTouchFrames = directoryPath + "touch_frames.csv";
+        filePathHOMERFrames = directoryPath + "homer_frames.csv";
 
-        //log filePath
-        Debug.Log(filePath);
-
-        // Check if the file exists
-        if (!File.Exists(filePath))
+        // Check if the touch file exists
+        if (!File.Exists(filePathTouch))
         {
             // Create a new file and write the column headers
-            using (StreamWriter sw = File.CreateText(filePath))
+            using (StreamWriter sw = File.CreateText(filePathTouch))
             {
-                sw.WriteLine("Task,Technique,Time,DistanceMismatch,RotationMismatch,TimeSpentTranslating,TimeSpentRotating");
+                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ");
             }
         }
-    }
 
-    public void logData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch, float timeSpentTranslating, float timeSpentRotating){
-        //open file on filePath
-        using (StreamWriter sw = File.AppendText(filePath))
+        // Check if the homer file exists
+        if (!File.Exists(filePathHOMER))
         {
-            //write data
-            if (completed){
-                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch + "," + timeSpentTranslating + "," + timeSpentRotating);
+            // Create a new file and write the column headers
+            using (StreamWriter sw = File.CreateText(filePathHOMER))
+            {
+                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslation,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslation,TotalRotationX,TotalRotationY,TotalRotationZ");
             }
-            else{
-                sw.WriteLine((currentPairIndex+1) + "," + mode + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch + "," + timeSpentTranslating + "," + timeSpentRotating);
+        }
+
+        // Check if the touch frames file exists
+        if (!File.Exists(filePathTouchFrames))
+        {
+            // Create a new file and write the column headers
+            using (StreamWriter sw = File.CreateText(filePathTouchFrames))
+            {
+                sw.WriteLine("Task,Timestamp,TouchNumber,TouchPosition1,TouchPosition2,State,ObjectPosition,ObjectRotation");
+            }
+        }
+
+        // Check if the homer frames file exists
+        if (!File.Exists(filePathHOMERFrames))
+        {
+            // Create a new file and write the column headers
+            using (StreamWriter sw = File.CreateText(filePathHOMERFrames))
+            {
+                sw.WriteLine("Task,Timestamp,ControllerPosition,ControllerRotation,ObjectPosition,ObjectRotation");
             }
         }
     }

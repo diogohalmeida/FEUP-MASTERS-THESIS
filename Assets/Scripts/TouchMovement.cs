@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 
 public class TouchMovement : MonoBehaviour
 {
@@ -42,6 +43,7 @@ public class TouchMovement : MonoBehaviour
 
     private TaskHandler taskHandler;
 
+    //For indicators
     public GameObject rotationArrowX1Prefab;
     public GameObject rotationArrowX2Prefab;
     public GameObject rotationArrowY1Prefab;
@@ -52,7 +54,6 @@ public class TouchMovement : MonoBehaviour
     public GameObject translationArrowXPrefab;
     public GameObject translationArrowYPrefab;
     public GameObject translationArrowZPrefab;
-
 
     private GameObject rotationArrow1 = null;
     private GameObject rotationArrow2 = null;
@@ -69,8 +70,22 @@ public class TouchMovement : MonoBehaviour
 
     private float translationArrowScale = 0.3f;
 
-    public float timeSpentRotating = 0.0f;
-    public float timeSpentTranslating = 0.0f;
+
+    //For logging
+    private float timeSpentIdle = 0.0f;
+    private float timeSpentRotationX = 0.0f;
+    private float timeSpentRotationY = 0.0f;
+    private float timeSpentRotationZ = 0.0f;
+    private float timeSpentTranslationXZ = 0.0f;
+    private float timeSpentTranslationY = 0.0f;
+    private float totalTranslationXZ = 0.0f;
+    private float totalTranslationY = 0.0f;
+    private float totalRotationX = 0.0f;
+    private float totalRotationY = 0.0f;
+    private float totalRotationZ = 0.0f;
+
+
+
     
 
     // Start is called before the first frame update
@@ -104,17 +119,6 @@ public class TouchMovement : MonoBehaviour
             thresholdError = thresholdErrorInitial;
         }
         currentState = stateCheck();
-
-        if (taskHandler.phase == 1){
-            if (currentState == State.RotationX || currentState == State.RotationY || currentState == State.RotationZ){
-                timeSpentRotating += Time.deltaTime;
-            }
-        
-            if (currentState == State.TranslationXZ || currentState == State.TranslationY){
-                timeSpentTranslating += Time.deltaTime;
-            }
-        }
-
         Debug.Log(currentState);    
         //Debug.Log("Error Threshold: " + thresholdError);
         //Debug.Log("Check Interval: " + stateCheckInterval);
@@ -124,6 +128,10 @@ public class TouchMovement : MonoBehaviour
         switch (currentState)
         {
             case State.Idle:
+                if (taskHandler.phase == 1){
+                    timeSpentIdle += Time.deltaTime;
+                }
+
                 if (Input.touchCount == 1){
                     Touch touch = Input.GetTouch(0);
                     touch1ID = touch.fingerId;
@@ -312,6 +320,10 @@ public class TouchMovement : MonoBehaviour
                     return State.Checking;
                 }
             case State.TranslationXZ:
+                if (taskHandler.phase == 1){
+                    timeSpentTranslationXZ += Time.deltaTime;
+                }
+
                 if (checkTranslationXZ(previousTouch1Position)){
                     Touch touch = getTouchByID(touch1ID, 1);
 
@@ -332,6 +344,10 @@ public class TouchMovement : MonoBehaviour
                     return State.TranslationXZ;
                 }
             case State.TranslationY:
+                if (taskHandler.phase == 1){
+                    timeSpentTranslationY += Time.deltaTime;
+                }
+
                 if (checkTranslationY(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = getTouchByID(touch1ID, 1);
                     Touch touch2 = getTouchByID(touch2ID, 2);
@@ -362,6 +378,10 @@ public class TouchMovement : MonoBehaviour
                     return State.TranslationY;
                 }
             case State.RotationX:
+                if (taskHandler.phase == 1){
+                    timeSpentRotationX += Time.deltaTime;
+                }
+
                 if (checkRotationX(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = getTouchByID(touch1ID, 1);
                     Touch touch2 = getTouchByID(touch2ID, 2);
@@ -392,6 +412,10 @@ public class TouchMovement : MonoBehaviour
                     return State.RotationX;
                 }
             case State.RotationY:
+                if (taskHandler.phase == 1){
+                    timeSpentRotationY += Time.deltaTime;
+                }
+
                 if (checkRotationY(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = getTouchByID(touch1ID, 1);
                     Touch touch2 = getTouchByID(touch2ID, 2);
@@ -430,6 +454,10 @@ public class TouchMovement : MonoBehaviour
                     return State.RotationY;
                 }
             case State.RotationZ:
+                if (taskHandler.phase == 1){
+                    timeSpentRotationZ += Time.deltaTime;
+                }
+
                 if (checkRotationZ(previousTouch1Position, previousTouch2Position)){
                     Touch touch1 = getTouchByID(touch1ID, 1);
                     Touch touch2 = getTouchByID(touch2ID, 2);
@@ -602,26 +630,29 @@ public class TouchMovement : MonoBehaviour
 
         Vector3 newPositionX = taskHandler.objectToDock.transform.position + (referenceFrame.right * touchDistance.x * velocityModifierTranslations * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance);
         Vector3 newPositionZ = taskHandler.objectToDock.transform.position + (referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance);
+        Vector3 newPosition = newPositionX + (newPositionZ - taskHandler.objectToDock.transform.position);
+
+        if (taskHandler.phase == 1){
+            totalTranslationXZ += Vector3.Distance(taskHandler.objectToDock.transform.position, newPosition);
+        }
 
         //Relative to frame
         if ((newPositionX.x > taskHandler.collisionXmin && newPositionX.x < taskHandler.collisionXmax)
             && (newPositionZ.z > taskHandler.collisionZmin && newPositionZ.z < taskHandler.collisionZmax)){
-            taskHandler.objectToDock.transform.position = newPositionX + (newPositionZ - taskHandler.objectToDock.transform.position);
+            taskHandler.objectToDock.transform.position = newPosition;
         }  
     }
 
 
     void YTranslation(Vector2 touch1Distance, Vector2 touch2Distance){
+        Vector3 newPositionY;
         if (Math.Abs(touch1Distance.y) > Math.Abs(touch2Distance.y)){
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
             
             float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
             
-            Vector3 newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
-            if (newPositionY.y > taskHandler.collisionYmin && newPositionY.y < taskHandler.collisionYmax){
-                taskHandler.objectToDock.transform.position = newPositionY;
-            }
+            newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
         }
         else{
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
@@ -629,10 +660,15 @@ public class TouchMovement : MonoBehaviour
             
             float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
      
-            Vector3 newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
-            if (newPositionY.y > taskHandler.collisionYmin && newPositionY.y < taskHandler.collisionYmax){
-                taskHandler.objectToDock.transform.position = newPositionY;
-            }
+            newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
+        }
+
+        if (taskHandler.phase == 1){
+            totalTranslationY += Vector3.Distance(taskHandler.objectToDock.transform.position, newPositionY);
+        }
+        
+        if (newPositionY.y > taskHandler.collisionYmin && newPositionY.y < taskHandler.collisionYmax){
+            taskHandler.objectToDock.transform.position = newPositionY;
         }
         
     }
@@ -663,8 +699,14 @@ public class TouchMovement : MonoBehaviour
             rotationArrow1.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
             rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
         }
+
+        float angle = (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations;
+
+        if (taskHandler.phase == 1){
+            totalRotationX += angle;
+        }
         
-        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);  
+        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, angle);  
         
         rotationArrow1.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);
         rotationArrow2.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations);
@@ -695,6 +737,9 @@ public class TouchMovement : MonoBehaviour
             rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
         }
 
+        if (taskHandler.phase == 1){
+            totalRotationY += angle;
+        }
 
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
 
@@ -731,7 +776,13 @@ public class TouchMovement : MonoBehaviour
             rotationArrow2.transform.localScale = new Vector3(scalingFactor, scalingFactor, scalingFactor);
         }
 
-        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
+        float angle = -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations;
+
+        if (taskHandler.phase == 1){
+            totalRotationZ += angle;
+        }
+
+        taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, angle);
 
         rotationArrow1.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
         rotationArrow2.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations);
@@ -792,9 +843,34 @@ public class TouchMovement : MonoBehaviour
         }
     }
 
-    public void resetTimes(){
-        this.timeSpentTranslating = 0;
-        this.timeSpentRotating = 0;
+    public void resetLog(){
+        this.timeSpentIdle = 0;
+        this.timeSpentTranslationXZ = 0;
+        this.timeSpentTranslationY = 0;
+        this.timeSpentRotationX = 0;
+        this.timeSpentRotationY = 0;
+        this.timeSpentRotationZ = 0;
+        this.totalTranslationXZ = 0;
+        this.totalTranslationY = 0;
+        this.totalRotationX = 0;
+        this.totalRotationY = 0;
+        this.totalRotationZ = 0;
+    }
+
+
+    public void logTouchData(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+        //open file on filePath
+        using (StreamWriter sw = File.AppendText(taskHandler.filePathTouch))
+        {
+            //write data
+            //Task,Time,DistanceMismatch,RotationMismatch,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ
+            if (completed){
+                sw.WriteLine((taskHandler.currentPairIndex+1) + "," + time.TotalSeconds + "," + distanceMismatch + "," + rotationMismatch + "," + this.timeSpentIdle + "," + this.timeSpentTranslationXZ + "," + this.timeSpentTranslationY + "," + this.timeSpentRotationX + "," + this.timeSpentRotationY + "," + this.timeSpentRotationZ + "," + this.totalTranslationXZ + "," + this.totalTranslationY + "," + this.totalRotationX + "," + this.totalRotationY + "," + this.totalRotationZ);
+            }
+            else{
+                sw.WriteLine((taskHandler.currentPairIndex+1) + "," + "NA" + "," + distanceMismatch + "," + rotationMismatch + "," + this.timeSpentIdle + "," + this.timeSpentTranslationXZ + "," + this.timeSpentTranslationY + "," + this.timeSpentRotationX + "," + this.timeSpentRotationY + "," + this.timeSpentRotationZ + "," + this.totalTranslationXZ + "," + this.totalTranslationY + "," + this.totalRotationX + "," + this.totalRotationY + "," + this.totalRotationZ);
+            }
+        }
     }
     
 }

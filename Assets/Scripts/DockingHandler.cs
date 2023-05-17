@@ -24,9 +24,6 @@ public class DockingHandler : MonoBehaviour
     private TouchMovement touchMovement;
     private Homer homer;
 
-    private float timeSpentTranslating;
-    private float timeSpentRotating;
-
     // Start is called before the first frame update
     void Start()
     {     
@@ -54,26 +51,13 @@ public class DockingHandler : MonoBehaviour
                     endTime = DateTime.Now.AddMinutes(maxTime);
                 }
             }else{
-                if (taskHandler.mode == 0){
-                    this.timeSpentTranslating = touchMovement.timeSpentTranslating;
-                    this.timeSpentRotating = touchMovement.timeSpentRotating;
-                }
-                else{
-                    this.timeSpentTranslating = homer.timeSpentTranslating;
-                    this.timeSpentRotating = homer.timeSpentRotating;
-                }
-
                 if (DateTime.Now >= endTime && !docking){
-                    taskHandler.logData(false, TimeSpan.Zero, 0, 0, this.timeSpentTranslating, this.timeSpentRotating);
-                    touchMovement.resetTimes();
-                    homer.resetTimes();
+                    logAndReset(true, TimeSpan.Zero, 0, 0);
                     nextTask();
                     return;
                 }
                 if (Input.GetKeyDown(KeyCode.Return)){
-                    taskHandler.logData(false, TimeSpan.Zero, 0, 0, this.timeSpentTranslating, this.timeSpentRotating);
-                    touchMovement.resetTimes();
-                    homer.resetTimes();
+                    logAndReset(false, TimeSpan.Zero, 0, 0);
                     nextTask();
                     return;
                 }
@@ -135,20 +119,7 @@ public class DockingHandler : MonoBehaviour
                     TimeSpan timeLeft = endTime.Subtract(DateTime.Now);
                     TimeSpan completionTime = TimeSpan.FromMinutes(maxTime).Subtract(timeLeft);
 
-                    if (taskHandler.mode == 0){
-                        this.timeSpentTranslating = touchMovement.timeSpentTranslating;
-                        this.timeSpentRotating = touchMovement.timeSpentRotating;
-                    }
-                    else{
-                        this.timeSpentTranslating = homer.timeSpentTranslating;
-                        this.timeSpentRotating = homer.timeSpentRotating;
-                    }
-                    
-                    taskHandler.logData(true, completionTime.Subtract(TimeSpan.FromSeconds(5)), distanceObjectToDP, angle, this.timeSpentTranslating, this.timeSpentRotating);
-                    
-                    touchMovement.resetTimes();
-                    homer.resetTimes();
-                    
+                    logAndReset(true, completionTime, distanceObjectToDP, angle);
                     nextTask();
                     //Debug.Log("Docking successful!");
                 }
@@ -288,6 +259,17 @@ public class DockingHandler : MonoBehaviour
             taskHandler.moving = false;
             taskHandler.nextPair();
             changeColor(Color.white);
+        }
+    }
+
+    private void logAndReset(bool completed, TimeSpan time, float distanceMismatch, float rotationMismatch){
+        if (taskHandler.mode == 0){
+            touchMovement.logTouchData(completed, time, distanceMismatch, rotationMismatch);
+            touchMovement.resetLog();
+        }
+        else{
+            homer.logHomerData(completed, time, distanceMismatch, rotationMismatch);
+            homer.resetLog();
         }
     }
 }
