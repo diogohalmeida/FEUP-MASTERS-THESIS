@@ -98,7 +98,7 @@ public class DockingHandler : MonoBehaviour
 
         distanceMismatch = Vector3.Distance(dockingPointCenter, objectToDockCenter);
 
-        //Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
+        Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
         //Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
         //Calculate angle between dockingPoint and objectToDock
         float angle = Quaternion.Angle(taskHandler.dockingPoint.transform.rotation, taskHandler.objectToDock.transform.rotation);
