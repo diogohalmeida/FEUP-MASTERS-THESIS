@@ -9,15 +9,32 @@ public class TouchDrawingHandler : MonoBehaviour
     private List<GameObject> pixelsGreen = new List<GameObject>();
     private TouchMovement touchMovement;
 
+    private TaskHandler taskHandler;
+
     private float sceneScale;
 
     void Start(){
         touchMovement = GameObject.Find("DockingObjects").GetComponent<TouchMovement>();
         sceneScale = GameObject.Find("Docking Task Scene").transform.localScale.x;
+        taskHandler = GameObject.Find("DockingObjects").GetComponent<TaskHandler>();
     }
 
     void FixedUpdate()
     {
+        if (taskHandler.mode == 1){
+            //destroy all pixels and return
+            for (int i = pixelsRed.Count - 1; i >= 0; i--)
+            {
+                Destroy(pixelsRed[i]);
+                pixelsRed.RemoveAt(i);
+            }
+            for (int i = pixelsGreen.Count - 1; i >= 0; i--)
+            {
+                Destroy(pixelsGreen[i]);
+                pixelsGreen.RemoveAt(i);
+            }
+            return;
+        }
         if (Input.touchCount > 0){
             for (int i = 0; i < Input.touchCount; i++)
             {

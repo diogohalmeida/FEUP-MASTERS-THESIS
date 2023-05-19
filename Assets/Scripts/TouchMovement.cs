@@ -25,13 +25,14 @@ public class TouchMovement : MonoBehaviour
     private Vector2 previousTouch1Position;
     private Vector2 previousTouch2Position;
 
-    private const int thresholdMovementX = 25; //Maximum movement to be considered an accidental movement in the X axis 
-    private const int thresholdMovementY = 40; //Maximum movement to be considered an accidental movement in the Y axis
-    private const int thresholdMovementXTranslationY = 15; //Maximum movement to be considered an accidental movement in the X axis
+    private const int thresholdMovementX = 50; //Maximum movement to be considered an accidental movement in the X axis 
+    private const int thresholdMovementY = 50; //Maximum movement to be considered an accidental movement in the Y axis
+    private const int thresholdMovementXTranslationY = 25; //Maximum movement to be considered an accidental movement in the X axis
     private const int thresholdMovementStationary = 1; //Maximum movement to be considered an accidental movement while stationary
-    private const int necessaryMovement = 10; //Minimum movement to be considered a movement
-    private const int necessaryAngle = 5; //Minimum angle to be considered a rotation
-    private const int necessaryMovementCircle = 10; //Minimum movement to be considered a rotation (Circular Movement)
+    private const int necessaryMovement = 15; //Minimum movement to be considered a movement
+    private const int necessaryMovementCircleX = 8; //Minimum movement to be considered a movement circle X
+    private const int necessaryMovementCircleY = 5; //Minimum movement to be considered a movement circle Y
+    private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
@@ -547,6 +548,7 @@ public class TouchMovement : MonoBehaviour
                 if (touch1DistanceX <= thresholdMovementX && touch2DistanceX <= thresholdMovementX && touch1DistanceY > 0 && touch2DistanceY > 0){
                     return true;
                 }
+                Debug.Log("RotationX");
             }
             else{
                 if (touch1DistanceX <= thresholdMovementX && touch2DistanceX <= thresholdMovementX && touch1DistanceY >= necessaryMovement && touch2DistanceY >= necessaryMovement){
@@ -581,7 +583,7 @@ public class TouchMovement : MonoBehaviour
                 }
             }
             else{
-                if (Math.Abs(angle) >= necessaryAngle && ((touch1DistanceX >= necessaryMovement || touch2DistanceX >= necessaryMovement) && (touch1DistanceY >= 0 || touch2DistanceY >= 0) && (touch1Distance >= necessaryMovementCircle || touch2Distance >= necessaryMovementCircle))){
+                if (Math.Abs(angle) >= necessaryAngle && ((touch1DistanceX >= necessaryMovementCircleX || touch2DistanceX >= necessaryMovementCircleX) && (touch1DistanceY >= necessaryMovementCircleY || touch2DistanceY >= necessaryMovementCircleY))){
                     return true;
                 }      
             }
@@ -700,7 +702,7 @@ public class TouchMovement : MonoBehaviour
         float angle = (touch1Distance.y + touch2Distance.y)/2 * velocityModifierRotations;
 
         if (taskHandler.phase == 1){
-            totalRotationX += angle;
+            totalRotationX += Math.Abs(angle);
         }
         
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.right, angle);  
@@ -735,7 +737,7 @@ public class TouchMovement : MonoBehaviour
         }
 
         if (taskHandler.phase == 1){
-            totalRotationY += angle;
+            totalRotationY += Math.Abs(angle);
         }
 
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.up, angle);
@@ -776,7 +778,7 @@ public class TouchMovement : MonoBehaviour
         float angle = -(touch1Distance.x + touch2Distance.x)/2 * velocityModifierRotations;
 
         if (taskHandler.phase == 1){
-            totalRotationZ += angle;
+            totalRotationZ += Math.Abs(angle);
         }
 
         taskHandler.objectToDock.transform.RotateAround(taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.center, referenceFrame.forward, angle);
@@ -861,6 +863,7 @@ public class TouchMovement : MonoBehaviour
 
     public void resetLog(){
         this.timeSpentIdle = 0;
+        this.timeSpentChecking = 0;
         this.timeSpentTranslationXZ = 0;
         this.timeSpentTranslationY = 0;
         this.timeSpentRotationX = 0;

@@ -25,10 +25,16 @@ public class TaskHandler : MonoBehaviour
     public float collisionZmin;
     public float collisionZmax;
 
+    GameObject office;
+    GameObject glass;
+
+    Vector3 initialOfficePosition;
+
     public bool moving = false; //false is idle, true is moving
     public int mode = 0; //0 is touch, 1 is HOMER
     public int phase = 0; //0 is training, 1 is test
     public bool finished = false;
+    public int iterations = 0;
 
     private float sceneScale;
 
@@ -70,20 +76,19 @@ public class TaskHandler : MonoBehaviour
         initialObjectToDockPosition = objectToDock.position;
         initialObjectToDockRotation = objectToDock.rotation;
 
-        //Initialize collision list with office boundary
-        Vector3 officeOffset = GameObject.Find("Office").transform.position;
+        office = GameObject.Find("Office");
+        glass = GameObject.Find("Glass");
 
-        collisionXmin = -12.5f*sceneScale + officeOffset.x;
-        collisionXmax = 12.5f*sceneScale + officeOffset.x;
-        collisionYmin = 0*sceneScale + officeOffset.y;
-        collisionYmax =  6.6f*sceneScale + officeOffset.y;
-        collisionZmin = -10*sceneScale + officeOffset.z; 
-        collisionZmax = 5*sceneScale + officeOffset.z;
+        //Initialize collision list with office boundary
+        initialOfficePosition = office.transform.position;
+
+        setOfficeCollisionLimits();
     }
 
     public void nextPair()
     {
         //Reset to initial position and rotation before moving to next pair
+        moving = false;
         objectToDock.position = initialObjectToDockPosition;
         objectToDock.rotation = initialObjectToDockRotation;
         pairs[phase][currentPairIndex].gameObject.SetActive(false);
@@ -114,35 +119,74 @@ public class TaskHandler : MonoBehaviour
                 initialObjectToDockRotation = objectToDock.rotation;
             }
             else{
-                finished = true;
+                if (iterations == 1){
+                    finished = true;
+                }
+                else{
+                    resetOffice();
+                    iterations++;
+                    phase = 0;
+                    currentPairIndex = 0;
+                    pairs[phase][currentPairIndex].gameObject.SetActive(true);
+                    
+                    dockingPoint = pairs[phase][currentPairIndex].transform.Find("DockingPoint");
+                    objectToDock = pairs[phase][currentPairIndex].transform.Find("ObjectToDock");   
+                    
+                    initialObjectToDockPosition = objectToDock.position;
+                    initialObjectToDockRotation = objectToDock.rotation;
+                }
             }
         }
 
         if (currentPairIndex == 4){
-            //find object called "Office" and "Glass"
-            GameObject office = GameObject.Find("Office");
-            GameObject glass = GameObject.Find("Glass");
-
-            //disable glass
-            glass.SetActive(false);
-
-            //rotate office 180 degrees and set position to 0,50,-215 (relative to parent), original is 0,50,-205 with 180 degrees rotation
-            office.transform.Rotate(0,180,0, Space.Self);
-            office.transform.position = new Vector3(0,20,-86);
-
-            //Get camera position
-            Vector3 cameraPosition = Camera.main.transform.position;
-
-            //Outer limits -350, 350
-            collisionXmin = -350;
-            collisionXmax = 350;
-            collisionYmin = 0;
-            collisionYmax = 100;
-            collisionZmin = cameraPosition.z;
-            collisionZmax = 350;
-                
-            
+            openOffice();
         }
+    }
+
+    private void setOfficeCollisionLimits(){
+        //Get camera position
+        Vector3 cameraPosition = Camera.main.transform.position;
+        
+        collisionXmin = -12.5f*sceneScale + initialOfficePosition.x;
+        collisionXmax = 12.5f*sceneScale + initialOfficePosition.x;
+        collisionYmin = 0*sceneScale + initialOfficePosition.y;
+        collisionYmax =  6.6f*sceneScale + initialOfficePosition.y;
+        collisionZmin = -10*sceneScale + initialOfficePosition.z; 
+        collisionZmax = 5*sceneScale + initialOfficePosition.z;
+    }
+
+    private void setOutsideCollisionLimits(){
+        //Get camera position
+        Vector3 cameraPosition = Camera.main.transform.position;
+        
+        //Outer limits -200, 200
+        collisionXmin = -200;
+        collisionXmax = 200;
+        collisionYmin = 0;
+        collisionYmax = 100;
+        collisionZmin = cameraPosition.z;
+        collisionZmax = 200;
+    }
+
+    private void openOffice(){
+        glass.SetActive(false);
+
+        //rotate office 180 degrees and set position to 0,50,-215 (relative to parent), original is 0,50,-205 with 180 degrees rotation
+        office.transform.Rotate(0,180,0, Space.Self);
+        office.transform.Translate(0,0,-4, Space.Self);
+
+        setOutsideCollisionLimits();
+    }
+
+    private void resetOffice(){
+        glass.SetActive(true);
+
+        //reset office to original position and rotation
+        office.transform.Translate(0,0,4, Space.Self);
+        office.transform.Rotate(0,180,0, Space.Self);
+        office.transform.position = initialOfficePosition;
+
+        setOfficeCollisionLimits();
     }
 
 

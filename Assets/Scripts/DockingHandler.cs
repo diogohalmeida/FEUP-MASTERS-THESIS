@@ -45,10 +45,28 @@ public class DockingHandler : MonoBehaviour
         }
         if (taskHandler.phase == 0){
             if (Input.GetKeyDown(KeyCode.Space)){
+                changeColor(Color.white);
                 taskHandler.nextPair();
             }
-            else if (Input.GetKeyDown(KeyCode.Return)){
-                taskHandler.startTest();
+            else if (taskHandler.iterations == 0){
+                if (Input.GetKeyDown(KeyCode.Alpha1)){
+                    taskHandler.mode = 0;
+                    taskHandler.startTest();
+                }
+                else if (Input.GetKeyDown(KeyCode.Alpha2)){
+                    taskHandler.mode = 1;
+                    taskHandler.startTest();
+                }
+            }else if (taskHandler.iterations == 1){
+                if (Input.GetKeyDown(KeyCode.Return)){
+                    if (taskHandler.mode == 0){
+                        taskHandler.mode = 1;
+                    }
+                    else{
+                        taskHandler.mode = 0;
+                    }
+                    taskHandler.startTest();
+                }
             }
         }
         else{
@@ -60,12 +78,14 @@ public class DockingHandler : MonoBehaviour
             }else{
                 if (DateTime.Now >= endTime && !docking){
                     logAndReset(false, TimeSpan.Zero);
-                    nextTask();
+                    changeColor(Color.white);
+                    taskHandler.nextPair();
                     return;
                 }
                 if (Input.GetKeyDown(KeyCode.Return)){
                     logAndReset(false, TimeSpan.Zero);
-                    nextTask();
+                    changeColor(Color.white);
+                    taskHandler.nextPair();
                     return;
                 }
             }
@@ -98,7 +118,7 @@ public class DockingHandler : MonoBehaviour
 
         distanceMismatch = Vector3.Distance(dockingPointCenter, objectToDockCenter);
 
-        Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
+        //Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
         //Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
         //Calculate angle between dockingPoint and objectToDock
         float angle = Quaternion.Angle(taskHandler.dockingPoint.transform.rotation, taskHandler.objectToDock.transform.rotation);
@@ -128,10 +148,12 @@ public class DockingHandler : MonoBehaviour
                     TimeSpan completionTime = TimeSpan.FromMinutes(maxTime).Subtract(timeLeft);
 
                     logAndReset(true, completionTime);
-                    nextTask();
+                    changeColor(Color.white);
+                    taskHandler.nextPair();
                     //Debug.Log("Docking successful!");
                 }
                 else{
+                    changeColor(Color.white);
                     taskHandler.nextPair();
                 }
                 docking = false;
@@ -248,25 +270,6 @@ public class DockingHandler : MonoBehaviour
         }
         else{
             timerText.GetComponent<TMPro.TextMeshProUGUI>().text = "00:00";
-        }
-    }
-
-
-    void nextTask(){
-        updateDistanceRotationUI(0,0,0);
-        updateStatusUI(2);
-        if (taskHandler.mode == 0){
-            taskHandler.mode = 1;
-            taskHandler.objectToDock.transform.position = taskHandler.initialObjectToDockPosition;
-            taskHandler.objectToDock.transform.rotation = taskHandler.initialObjectToDockRotation;
-            taskHandler.moving = false;
-            changeColor(Color.white);
-        }
-        else if (taskHandler.mode == 1){
-            taskHandler.mode = 0;
-            taskHandler.moving = false;
-            taskHandler.nextPair();
-            changeColor(Color.white);
         }
     }
 
