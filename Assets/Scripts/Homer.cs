@@ -92,17 +92,17 @@ public class Homer : MonoBehaviour
                     if (handDeltaRotation.eulerAngles.x > 0.5f)
                     {
                         timeSpentRotationX += Time.deltaTime;
-                        totalRotationX += handDeltaRotation.eulerAngles.x;
+                        totalRotationX += Math.Abs(taskHandler.convertEuler(handDeltaRotation.eulerAngles.x));
                     }
                     if (handDeltaRotation.eulerAngles.y > 0.5f)
                     {
                         timeSpentRotationY += Time.deltaTime;
-                        totalRotationY += handDeltaRotation.eulerAngles.y;
+                        totalRotationY += Math.Abs(taskHandler.convertEuler(handDeltaRotation.eulerAngles.y));
                     }
                     if (handDeltaRotation.eulerAngles.z > 0.5f)
                     {
                         timeSpentRotationZ += Time.deltaTime;
-                        totalRotationZ += handDeltaRotation.eulerAngles.z;
+                        totalRotationZ += Math.Abs(taskHandler.convertEuler(handDeltaRotation.eulerAngles.z));
                     }
                 }
                 
@@ -157,8 +157,8 @@ public class Homer : MonoBehaviour
             else{
                 completionTime = "NA";
             }
-            sw.WriteLine((taskHandler.currentPairIndex+1)+  "," + completionTime + "," + distanceMismatch.ToString("F2") + ",(" + 
-                rotationMismatchX.ToString("F2") + ";" + rotationMismatchY.ToString("F2") + ";" + rotationMismatchZ.ToString("F2") + ")," + 
+            sw.WriteLine((taskHandler.currentPairIndex+1)+  "," + completionTime + "," + distanceMismatch.ToString("F2") + "," + 
+                rotationMismatchX.ToString("F2") + "," + rotationMismatchY.ToString("F2") + "," + rotationMismatchZ.ToString("F2") + "," + 
                 this.timeSpentIdle.ToString("F2") + "," + this.timeSpentTranslation.ToString("F2") + "," + 
                 this.timeSpentRotationX.ToString("F2") + "," + this.timeSpentRotationY.ToString("F2") + "," + this.timeSpentRotationZ.ToString("F2") + "," + 
                 this.totalTranslation.ToString("F2") + "," + this.totalRotationX.ToString("F2") + "," + this.totalRotationY.ToString("F2") + "," + this.totalRotationZ.ToString("F2"));
@@ -182,11 +182,11 @@ public class Homer : MonoBehaviour
         {
             sw.WriteLine((taskHandler.currentPairIndex+1) + "," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "," + isGrabbing + ",(" +
             rightHand.position.x.ToString("F2") + ";" + rightHand.position.y.ToString("F2") + ";" + rightHand.position.z.ToString("F2") + "),(" +
-            rightHand.rotation.eulerAngles.x.ToString("F2") + ";" + rightHand.rotation.eulerAngles.y.ToString("F2") + ";" + rightHand.rotation.eulerAngles.z.ToString("F2") + "),(" + 
+            taskHandler.convertEuler(rightHand.rotation.eulerAngles.x).ToString("F2") + ";" + taskHandler.convertEuler(rightHand.rotation.eulerAngles.y).ToString("F2") + ";" + taskHandler.convertEuler(rightHand.rotation.eulerAngles.z).ToString("F2") + "),(" + 
             taskHandler.objectToDock.transform.position.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.z.ToString("F2") + "),(" +
-            taskHandler.objectToDock.transform.rotation.eulerAngles.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.z.ToString("F2") + "),(" +
-            distanceObjectToDPX.ToString("F2") + ";" + distanceObjectToDPY.ToString("F2") + ";" + distanceObjectToDPZ.ToString("F2") + "),(" + 
-            angleX.ToString("F2") + ";" + angleY.ToString("F2") + ";" + angleZ.ToString("F2") + ")");
+            taskHandler.convertEuler(taskHandler.objectToDock.transform.rotation.eulerAngles.x).ToString("F2") + ";" + taskHandler.convertEuler(taskHandler.objectToDock.transform.rotation.eulerAngles.y).ToString("F2") + ";" + taskHandler.convertEuler(taskHandler.objectToDock.transform.rotation.eulerAngles.z).ToString("F2") + ")," +
+            distanceObjectToDPX.ToString("F2") + "," + distanceObjectToDPY.ToString("F2") + "," + distanceObjectToDPZ.ToString("F2") + "," + 
+            angleX.ToString("F2") + "," + angleY.ToString("F2") + "," + angleZ.ToString("F2"));
         }
     }
 }           

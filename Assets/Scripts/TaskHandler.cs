@@ -181,7 +181,7 @@ public class TaskHandler : MonoBehaviour
             // Create a new file and write the column headers
             using (StreamWriter sw = File.CreateText(filePathTouch))
             {
-                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ");
+                sw.WriteLine("Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentChecking,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ");
             }
         }
 
@@ -213,6 +213,17 @@ public class TaskHandler : MonoBehaviour
             {
                 sw.WriteLine("Task,Timestamp,isGrabbing,ControllerPosition,ControllerRotation,ObjectPosition,ObjectRotation,DistanceMismatchX,DistanceMismatchY,DistanceMismatchZ,RotationMismatchX,RotationMismatchY,RotationMismatchZ");
             }
+        }
+    }
+
+
+    //function that converts euler angles to values between 0 and 180
+    public float convertEuler(float euler){
+        if (euler > 180){
+            return euler - 360;
+        }
+        else{
+            return euler;
         }
     }
 }

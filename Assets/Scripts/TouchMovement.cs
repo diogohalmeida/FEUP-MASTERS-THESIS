@@ -27,10 +27,11 @@ public class TouchMovement : MonoBehaviour
 
     private const int thresholdMovementX = 25; //Maximum movement to be considered an accidental movement in the X axis 
     private const int thresholdMovementY = 40; //Maximum movement to be considered an accidental movement in the Y axis
+    private const int thresholdMovementXTranslationY = 15; //Maximum movement to be considered an accidental movement in the X axis
     private const int thresholdMovementStationary = 1; //Maximum movement to be considered an accidental movement while stationary
     private const int necessaryMovement = 10; //Minimum movement to be considered a movement
-    private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
-    private const int necessaryMovementCircle = 15; //Minimum movement to be considered a rotation (Circular Movement)
+    private const int necessaryAngle = 5; //Minimum angle to be considered a rotation
+    private const int necessaryMovementCircle = 10; //Minimum movement to be considered a rotation (Circular Movement)
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
@@ -73,6 +74,7 @@ public class TouchMovement : MonoBehaviour
 
     //For logging
     private float timeSpentIdle = 0.0f;
+    private float timeSpentChecking = 0.0f;
     private float timeSpentRotationX = 0.0f;
     private float timeSpentRotationY = 0.0f;
     private float timeSpentRotationZ = 0.0f;
@@ -145,6 +147,9 @@ public class TouchMovement : MonoBehaviour
                     return State.Idle;
                 }
             case State.Checking:
+                if (taskHandler.phase == 1){
+                    timeSpentChecking += Time.deltaTime;
+                }
                 if (Input.touchCount != touchCount){
                     thresholdError = thresholdErrorInitial;
                     stateCheckInterval = stateCheckIntervalInitial;
@@ -516,12 +521,12 @@ public class TouchMovement : MonoBehaviour
             float touch2Distance = Vector2.Distance(touch2Position, touch2.position);
             
             if (currentState == State.TranslationY){
-                if ((touch1Distance == 0 && touch2DistanceY >= 0 && touch2DistanceX <= thresholdMovementX) || (touch2Distance == 0 && touch1DistanceY >= 0 && touch1DistanceX <= thresholdMovementX)){
+                if ((touch1Distance == 0 && touch2DistanceY >= 0 && touch2DistanceX <= thresholdMovementXTranslationY) || (touch2Distance == 0 && touch1DistanceY >= 0 && touch1DistanceX <= thresholdMovementXTranslationY)){
                     return true;
                 }
             }
             else{
-                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= necessaryMovement && touch2DistanceX <= thresholdMovementX)|| (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= necessaryMovement && touch1DistanceX <= thresholdMovementX)){
+                if ((touch1Distance <= thresholdMovementStationary && touch2DistanceY >= necessaryMovement && touch2DistanceX <= thresholdMovementXTranslationY)|| (touch2Distance<= thresholdMovementStationary && touch1DistanceY >= necessaryMovement && touch1DistanceX <= thresholdMovementXTranslationY)){
                     return true;
                 }
             }
@@ -883,9 +888,9 @@ public class TouchMovement : MonoBehaviour
                 completionTime = "NA";
             }
 
-            sw.WriteLine((taskHandler.currentPairIndex+1) + "," + completionTime + "," + distanceMismatch.ToString("F2") + ",(" + 
-                rotationMismatchX.ToString("F2") + ";" + rotationMismatchY.ToString("F2") + ";" + rotationMismatchZ.ToString("F2") + ")," + 
-                this.timeSpentIdle.ToString("F2") + "," + this.timeSpentTranslationXZ.ToString("F2") + "," + this.timeSpentTranslationY.ToString("F2") + "," + 
+            sw.WriteLine((taskHandler.currentPairIndex+1) + "," + completionTime + "," + distanceMismatch.ToString("F2") + "," + 
+                rotationMismatchX.ToString("F2") + "," + rotationMismatchY.ToString("F2") + "," + rotationMismatchZ.ToString("F2") + "," + 
+                this.timeSpentIdle.ToString("F2") + "," + this.timeSpentChecking.ToString("F2") + "," + this.timeSpentTranslationXZ.ToString("F2") + "," + this.timeSpentTranslationY.ToString("F2") + "," + 
                 this.timeSpentRotationX.ToString("F2") + "," + this.timeSpentRotationY.ToString("F2") + "," + this.timeSpentRotationZ.ToString("F2") + "," + 
                 this.totalTranslationXZ.ToString("F2") + "," + this.totalTranslationY.ToString("F2") + "," + 
                 this.totalRotationX.ToString("F2") + "," + this.totalRotationY.ToString("F2") + "," + this.totalRotationZ.ToString("F2"));
@@ -932,9 +937,9 @@ public class TouchMovement : MonoBehaviour
             sw.WriteLine((taskHandler.currentPairIndex+1) + "," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "," + this.currentState + "," + Input.touchCount + "," +
                 touchPosition1 + "," + touchPosition2 + ",(" +
                 taskHandler.objectToDock.transform.position.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.position.z.ToString("F2") + "),(" +
-                taskHandler.objectToDock.transform.rotation.eulerAngles.x.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.y.ToString("F2") + ";" + taskHandler.objectToDock.transform.rotation.eulerAngles.z.ToString("F2") + "),(" +
-                distanceObjectToDPX.ToString("F2") + ";" + distanceObjectToDPY.ToString("F2") + ";" + distanceObjectToDPZ.ToString("F2") + "),(" +
-                angleX.ToString("F2") + ";" + angleY.ToString("F2") + ";" + angleZ.ToString("F2") + ")"); 
+                taskHandler.convertEuler(taskHandler.objectToDock.transform.rotation.eulerAngles.x).ToString("F2") + ";" + taskHandler.convertEuler(taskHandler.objectToDock.transform.rotation.eulerAngles.y).ToString("F2") + ";" + taskHandler.convertEuler(taskHandler.objectToDock.transform.rotation.eulerAngles.z).ToString("F2") + ")," +
+                distanceObjectToDPX.ToString("F2") + "," + distanceObjectToDPY.ToString("F2") + "," + distanceObjectToDPZ.ToString("F2") + "," +
+                angleX.ToString("F2") + "," + angleY.ToString("F2") + "," + angleZ.ToString("F2")); 
         }
     }
     
