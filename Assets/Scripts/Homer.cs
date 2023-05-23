@@ -32,6 +32,8 @@ public class Homer : MonoBehaviour
     private float totalRotationY = 0.0f;
     private float totalRotationZ = 0.0f;
 
+    private float scalingFactorDistance = 1.0f;
+
 
 
     // Start is called before the first frame update
@@ -59,6 +61,7 @@ public class Homer : MonoBehaviour
                 previousHandPosition = rightHand.position;
                 previousHandRotation = rightHand.rotation;
                 previousObjectRotation = taskHandler.objectToDock.transform.rotation;
+                scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)/Vector3.Distance(Camera.main.transform.position, rightHand.position);
             }
             else{
                  //Move the object to the position of the right hand
@@ -71,7 +74,7 @@ public class Homer : MonoBehaviour
 
 
                 float scalingFactorVelocity = velocity / scalingConstant;
-                float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)/Vector3.Distance(Camera.main.transform.position, rightHand.position);
+                //float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position)/Vector3.Distance(Camera.main.transform.position, rightHand.position);
 
                 Vector3 newPosition = handDeltaTranslation * (Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance + taskHandler.objectToDock.transform.position;
                 if (newPosition.x > taskHandler.collisionXmin && newPosition.x < taskHandler.collisionXmax && 

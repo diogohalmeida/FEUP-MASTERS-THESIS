@@ -37,8 +37,9 @@ public class TouchMovement : MonoBehaviour
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes
 
-    private float velocityModifierTranslations = 0.02f; //Fixed value to decrease translation velocity
-    private float velocityModifierTranslationY = 0.01f; //Fixed value to decrease translationY velocity
+    //newPosition = oldPosition + (touchDistance * velocityModifierTranslation * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance);
+    private float velocityModifierTranslations = 0.001f; //Fixed value to decrease translation velocity
+    private float velocityModifierTranslationY = 0.0005f; //Fixed value to decrease translationY velocity
     private float velocityModifierRotations = 0.25f; //Fixed value to decrease rotation velocity
 
     private float scalingConstant = 3000.0f;    //Used to calculate scaling factor (maximum velocity before scaling > 1)
@@ -623,7 +624,7 @@ public class TouchMovement : MonoBehaviour
             return;
         }
 
-        float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
+        float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position);
 
         float scalingFactorVelocity = velocity / scalingConstant;
 
@@ -649,7 +650,7 @@ public class TouchMovement : MonoBehaviour
             float velocity = Math.Abs(touch1Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
             
-            float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
+            float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position);
             
             newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch1Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
         }
@@ -657,7 +658,7 @@ public class TouchMovement : MonoBehaviour
             float velocity = Math.Abs(touch2Distance.y) / Time.deltaTime;
             float scalingFactorVelocity = velocity / scalingConstant;
             
-            float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position) * 0.05f;
+            float scalingFactorDistance = Vector3.Distance(Camera.main.transform.position, taskHandler.objectToDock.transform.position);
      
             newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
         }
