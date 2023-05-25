@@ -32,7 +32,7 @@ public class TouchMovement : MonoBehaviour
     private const int necessaryMovement = 15; //Minimum movement to be considered a movement
     private const int necessaryMovementCircleX = 8; //Minimum movement to be considered a movement circle X
     private const int necessaryMovementCircleY = 5; //Minimum movement to be considered a movement circle Y
-    private const int necessaryAngle = 10; //Minimum angle to be considered a rotation
+    private const int necessaryAngle = 8; //Minimum angle to be considered a rotation
     
     private const int thresholdErrorInitial = 5; //Tolerance for state change caused by mistakes - initial value
     private int thresholdError = thresholdErrorInitial; //Tolerance for state change caused by mistakes

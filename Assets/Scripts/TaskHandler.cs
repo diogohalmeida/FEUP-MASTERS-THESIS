@@ -192,6 +192,9 @@ public class TaskHandler : MonoBehaviour
 
     public void startTest(){
         pairs[phase][currentPairIndex].gameObject.SetActive(false);
+
+        objectToDock.position = initialObjectToDockPosition;
+        objectToDock.rotation = initialObjectToDockRotation;
         
         phase = 1;
         currentPairIndex = 0;
