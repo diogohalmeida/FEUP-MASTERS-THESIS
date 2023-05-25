@@ -39,7 +39,7 @@ public class TouchMovement : MonoBehaviour
 
     //newPosition = oldPosition + (touchDistance * velocityModifierTranslation * Math.Min(scalingFactorVelocity, 1.2f) * scalingFactorDistance);
     private float velocityModifierTranslations = 0.001f; //Fixed value to decrease translation velocity
-    private float velocityModifierTranslationY = 0.0005f; //Fixed value to decrease translationY velocity
+    private float velocityModifierTranslationY = 0.001f; //Fixed value to decrease translationY velocity
     private float velocityModifierRotations = 0.25f; //Fixed value to decrease rotation velocity
 
     private float scalingConstant = 3000.0f;    //Used to calculate scaling factor (maximum velocity before scaling > 1)
@@ -180,11 +180,6 @@ public class TouchMovement : MonoBehaviour
                         translationArrowZ2 = Instantiate(translationArrowZPrefab, center, Quaternion.identity);
                         translationArrowZ2.transform.Rotate(0, 90, 0);
                         translationArrowZ2.transform.position += taskHandler.objectToDock.transform.GetComponent<MeshCollider>().bounds.extents.z * referenceFrame.transform.forward;
-                        
-                        // translationArrowX1.transform.parent = taskHandler.objectToDock.transform;
-                        // translationArrowX2.transform.parent = taskHandler.objectToDock.transform;
-                        // translationArrowZ1.transform.parent = taskHandler.objectToDock.transform;
-                        // translationArrowZ2.transform.parent = taskHandler.objectToDock.transform;
 
                         XZTranslation(previousTouch1Position - initialTouch1Position);
                         return State.TranslationXZ;
@@ -235,7 +230,7 @@ public class TouchMovement : MonoBehaviour
                             rotationClockwise = true;
                         }
 
-                        YRotation(angle);
+                        //YRotation(angle);
 
                         return State.RotationY;
                     }
@@ -270,7 +265,7 @@ public class TouchMovement : MonoBehaviour
                             rotationClockwise = false;
                         }
 
-                        ZRotation(touch1Distance, touch2Distance);
+                        //ZRotation(touch1Distance, touch2Distance);
 
                         return State.RotationZ;
                     }
@@ -305,7 +300,7 @@ public class TouchMovement : MonoBehaviour
                             rotationClockwise = false;
                         }
                         
-                        XRotation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
+                        //XRotation(previousTouch1Position - initialTouch1Position, previousTouch2Position - initialTouch2Position);
                         
                         return State.RotationX;
                     }
