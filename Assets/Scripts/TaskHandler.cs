@@ -44,6 +44,10 @@ public class TaskHandler : MonoBehaviour
     public string filePathTouchFrames;
     public string filePathHOMERFrames;
 
+    public GameObject cheatsheet;
+    public GameObject wallObjects;
+    public GameObject desk;
+
 
     // Start is called before the first frame update
     void Start()
@@ -85,6 +89,18 @@ public class TaskHandler : MonoBehaviour
         setOfficeCollisionLimits();
     }
 
+
+    void Update(){
+        if (Input.GetKeyDown(KeyCode.RightArrow)){
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow)){
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow)){
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow)){
+        }
+    }
+
     public void nextPair()
     {
         //Reset to initial position and rotation before moving to next pair
@@ -124,6 +140,7 @@ public class TaskHandler : MonoBehaviour
                 }
                 else{
                     resetOffice();
+                    enableCheatsheet();
                     iterations++;
                     phase = 0;
                     currentPairIndex = 0;
@@ -201,6 +218,8 @@ public class TaskHandler : MonoBehaviour
         pairs[phase][currentPairIndex].gameObject.SetActive(true);
         dockingPoint = pairs[phase][currentPairIndex].transform.Find("DockingPoint");
         objectToDock = pairs[phase][currentPairIndex].transform.Find("ObjectToDock");
+
+        disableCheatsheet();
         
         initialObjectToDockPosition = objectToDock.position;
         initialObjectToDockRotation = objectToDock.rotation;
@@ -272,5 +291,22 @@ public class TaskHandler : MonoBehaviour
         else{
             return euler;
         }
+    }
+
+
+    public void enableCheatsheet(){
+        //Disable WallObjects gameObject
+        wallObjects.SetActive(false);
+
+        //Enable Cheatsheet gameObject
+        cheatsheet.SetActive(true);
+    }
+
+    public void disableCheatsheet(){
+        //Disable Cheatsheet gameObject
+        cheatsheet.SetActive(false);
+
+        //Enable WallObjects gameObject
+        wallObjects.SetActive(true);
     }
 }

@@ -535,20 +535,27 @@ public class TouchMovement : MonoBehaviour
         if (Input.touchCount >= 2){
             Touch touch1 = getTouchByID(touch1ID, 1);
             Touch touch2 = getTouchByID(touch2ID, 2);
-            float touch1DistanceX = Math.Abs(touch1Position.x - touch1.position.x);
-            float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
-            float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
-            float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
+            float touch1DistanceX = touch1Position.x - touch1.position.x;
+            float touch2DistanceX = touch2Position.x - touch2.position.x;
+            float touch1DistanceY = touch1Position.y - touch1.position.y;
+            float touch2DistanceY = touch2Position.y - touch2.position.y;
 
-            if (currentState == State.RotationX){
-                if (touch1DistanceX <= thresholdMovementX && touch2DistanceX <= thresholdMovementX && touch1DistanceY > 0 && touch2DistanceY > 0){
-                    return true;
+            if ((touch1DistanceY > 0 && touch2DistanceY > 0) || (touch1DistanceY < 0 && touch2DistanceY < 0)){
+                touch1DistanceX = Math.Abs(touch1DistanceX);
+                touch2DistanceX = Math.Abs(touch2DistanceX);
+                touch1DistanceY = Math.Abs(touch1DistanceY);
+                touch2DistanceY = Math.Abs(touch2DistanceY);
+
+
+                if (currentState == State.RotationX){
+                    if (touch1DistanceX <= thresholdMovementX && touch2DistanceX <= thresholdMovementX && touch1DistanceY > 0 && touch2DistanceY > 0){
+                        return true;
+                    }
                 }
-                Debug.Log("RotationX");
-            }
-            else{
-                if (touch1DistanceX <= thresholdMovementX && touch2DistanceX <= thresholdMovementX && touch1DistanceY >= necessaryMovement && touch2DistanceY >= necessaryMovement){
-                    return true;
+                else{
+                    if (touch1DistanceX <= thresholdMovementX && touch2DistanceX <= thresholdMovementX && touch1DistanceY >= necessaryMovement && touch2DistanceY >= necessaryMovement){
+                        return true;
+                    }
                 }
             }
         }
@@ -592,19 +599,26 @@ public class TouchMovement : MonoBehaviour
         if (Input.touchCount >= 2){
             Touch touch1 = getTouchByID(touch1ID, 1);
             Touch touch2 = getTouchByID(touch2ID, 2);
-            float touch1DistanceX = Math.Abs(touch1Position.x - touch1.position.x);
-            float touch2DistanceX = Math.Abs(touch2Position.x - touch2.position.x);
-            float touch1DistanceY = Math.Abs(touch1Position.y - touch1.position.y);
-            float touch2DistanceY = Math.Abs(touch2Position.y - touch2.position.y);
-            
-            if (currentState == State.RotationZ){
-                if (touch1DistanceX > 0 && touch2DistanceX > 0 && touch1DistanceY <= thresholdMovementY && touch2DistanceY <= thresholdMovementY){
-                    return true;
+            float touch1DistanceX = touch1Position.x - touch1.position.x;
+            float touch2DistanceX = touch2Position.x - touch2.position.x;
+            float touch1DistanceY = touch1Position.y - touch1.position.y;
+            float touch2DistanceY = touch2Position.y - touch2.position.y;
+
+            if ((touch1DistanceX > 0 && touch2DistanceX > 0) || (touch1DistanceX < 0 && touch2DistanceX < 0)){
+                touch1DistanceX = Math.Abs(touch1DistanceX);
+                touch2DistanceX = Math.Abs(touch2DistanceX);
+                touch1DistanceY = Math.Abs(touch1DistanceY);
+                touch2DistanceY = Math.Abs(touch2DistanceY);
+        
+                if (currentState == State.RotationZ){
+                    if (touch1DistanceX > 0 && touch2DistanceX > 0 && touch1DistanceY <= thresholdMovementY && touch2DistanceY <= thresholdMovementY){
+                        return true;
+                    }
                 }
-            }
-            else{
-                if (touch1DistanceX >= necessaryMovement && touch2DistanceX >= necessaryMovement && touch1DistanceY <= thresholdMovementY && touch2DistanceY <= thresholdMovementY){
-                    return true;
+                else{
+                    if (touch1DistanceX >= necessaryMovement && touch2DistanceX >= necessaryMovement && touch1DistanceY <= thresholdMovementY && touch2DistanceY <= thresholdMovementY){
+                        return true;
+                    }
                 }
             }
         }
