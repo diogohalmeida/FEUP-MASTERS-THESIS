@@ -46,7 +46,7 @@ public class TaskHandler : MonoBehaviour
 
     public GameObject cheatsheet;
     public GameObject wallObjects;
-    public GameObject desk;
+    public GameObject player;
 
 
     // Start is called before the first frame update
@@ -91,13 +91,23 @@ public class TaskHandler : MonoBehaviour
 
 
     void Update(){
-        if (Input.GetKeyDown(KeyCode.RightArrow)){
+        if (Input.GetKeyDown(KeyCode.W)){
+            player.transform.Translate(0,0,0.01f, Space.Self);
         }
-        if (Input.GetKeyDown(KeyCode.LeftArrow)){
+        if (Input.GetKeyDown(KeyCode.S)){
+            player.transform.Translate(0,0,-0.01f, Space.Self);
+        }
+        if (Input.GetKeyDown(KeyCode.D)){
+            player.transform.Translate(0.01f,0,0, Space.Self);
+        }
+        if (Input.GetKeyDown(KeyCode.A)){
+            player.transform.Translate(-0.01f,0,0, Space.Self);
         }
         if (Input.GetKeyDown(KeyCode.UpArrow)){
+            player.transform.Translate(0,0.01f,0, Space.Self);
         }
         if (Input.GetKeyDown(KeyCode.DownArrow)){
+            player.transform.Translate(0,-0.01f,0, Space.Self);
         }
     }
 
