@@ -120,9 +120,9 @@ public class DockingHandler : MonoBehaviour
 
 
         //Log mesh size
-        Debug.Log("Mesh size: " + taskHandler.objectToDock.GetComponent<MeshCollider>().bounds.size.ToString("F2") + "m");
-        Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
-        Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
+        //Debug.Log("Mesh size: " + taskHandler.objectToDock.GetComponent<MeshCollider>().bounds.size.ToString("F2") + "m");
+        //Debug.Log("Distance to dp: " + distanceCameraToDP.ToString("F2") + "m");
+        //Debug.Log("Distance to object: " + Vector3.Distance(Camera.main.transform.position, objectToDockCenter).ToString("F2") + "m");
         //Calculate angle between dockingPoint and objectToDock
         float angle = Quaternion.Angle(taskHandler.dockingPoint.transform.rotation, taskHandler.objectToDock.transform.rotation);
 

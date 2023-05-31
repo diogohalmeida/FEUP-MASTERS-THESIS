@@ -81,17 +81,17 @@ public class Homer : MonoBehaviour
                 newPosition.y > taskHandler.collisionYmin && newPosition.y < taskHandler.collisionYmax && 
                 newPosition.z > taskHandler.collisionZmin && newPosition.z < taskHandler.collisionZmax)
                 {
+                    if (taskHandler.phase == 1){
+                        if (handDeltaTranslation.magnitude > 0.00035f){
+                            timeSpentTranslation += Time.deltaTime;
+                            totalTranslation += Vector3.Distance(newPosition, taskHandler.objectToDock.transform.position);
+                        }
+                    }
                     taskHandler.objectToDock.transform.position = newPosition;
                 }
-                RotateAround(taskHandler.objectToDock.transform, pivotPoint, handDeltaRotation);
+
 
                 if (taskHandler.phase == 1){
-                    if (handDeltaTranslation.magnitude > 0.00035f)
-                    {
-                        timeSpentTranslation += Time.deltaTime;
-                        totalTranslation += Vector3.Distance(newPosition, taskHandler.objectToDock.transform.position);
-                    }
-
                     if (handDeltaRotation.eulerAngles.x > 0.5f)
                     {
                         timeSpentRotationX += Time.deltaTime;
@@ -108,7 +108,9 @@ public class Homer : MonoBehaviour
                         totalRotationZ += Math.Abs(taskHandler.convertEuler(handDeltaRotation.eulerAngles.z));
                     }
                 }
-                
+                RotateAround(taskHandler.objectToDock.transform, pivotPoint, handDeltaRotation);
+
+                              
                 previousHandPosition = rightHand.position;
                 previousHandRotation = rightHand.rotation;
                 previousObjectRotation = taskHandler.objectToDock.transform.rotation;

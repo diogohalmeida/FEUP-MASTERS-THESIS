@@ -641,13 +641,14 @@ public class TouchMovement : MonoBehaviour
         Vector3 newPositionZ = taskHandler.objectToDock.transform.position + (referenceFrame.forward * touchDistance.y * velocityModifierTranslations *  Math.Min(scalingFactorVelocity, 1.2f)* scalingFactorDistance);
         Vector3 newPosition = newPositionX + (newPositionZ - taskHandler.objectToDock.transform.position);
 
-        if (taskHandler.phase == 1){
-            totalTranslationXZ += Vector3.Distance(taskHandler.objectToDock.transform.position, newPosition);
-        }
-
         //Relative to frame
         if ((newPositionX.x > taskHandler.collisionXmin && newPositionX.x < taskHandler.collisionXmax)
             && (newPositionZ.z > taskHandler.collisionZmin && newPositionZ.z < taskHandler.collisionZmax)){
+            
+            if (taskHandler.phase == 1){
+                totalTranslationXZ += Vector3.Distance(taskHandler.objectToDock.transform.position, newPosition);
+            }
+            
             taskHandler.objectToDock.transform.position = newPosition;
         }  
     }
@@ -671,12 +672,13 @@ public class TouchMovement : MonoBehaviour
      
             newPositionY = taskHandler.objectToDock.transform.position + (referenceFrame.up * touch2Distance.y * velocityModifierTranslationY * Math.Min(scalingFactorVelocity, 1.2f)) * scalingFactorDistance;
         }
-
-        if (taskHandler.phase == 1){
-            totalTranslationY += Vector3.Distance(taskHandler.objectToDock.transform.position, newPositionY);
-        }
         
         if (newPositionY.y > taskHandler.collisionYmin && newPositionY.y < taskHandler.collisionYmax){
+            
+            if (taskHandler.phase == 1){
+                totalTranslationY += Vector3.Distance(taskHandler.objectToDock.transform.position, newPositionY);
+            }
+            
             taskHandler.objectToDock.transform.position = newPositionY;
         }
         
