@@ -21,7 +21,7 @@ public class TouchDrawingHandler : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (taskHandler.mode == 1){
+        if (taskHandler.mode == 1 && taskHandler.phase == 1){
             //destroy all pixels and return
             for (int i = pixelsRed.Count - 1; i >= 0; i--)
             {
