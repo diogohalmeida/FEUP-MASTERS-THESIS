@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 
+import convert 
+
 
 #Open .csv file with format and put it in a pandas dataframe
 def open_csv(filename):
@@ -39,7 +41,7 @@ df_list_homer_frames = open_all_csv(3)
 
 
 # Define the categories you want to extract
-categories = ['Time', 'DistanceMismatch', 'RotationMismatchX', 'RotationMismatchY', 'RotationMismatchZ']
+categories = ['Time', 'TimeSpentIdle', 'TotalObjectTranslation', 'TotalMovement', 'TotalTranslationMovement']
 
 # Create a new Excel file
 writer = pd.ExcelWriter('Output.xlsx')
@@ -52,15 +54,66 @@ for category in categories:
         #write the participant number in the first column, which is the size of df_list_touch
         merged_df['Participant'] = range(1, len(df_list_touch) + 1)
 
-        # Iterate over each participant
-        for i in range(0, len(df_list_touch)):
-            #Get the cell value of the category and task and put it in the dataframe
-            merged_df.loc[i, 'SIT6'] = df_list_touch[i][category][df_list_touch[i]["Task"] == task + 1].sum()
 
-        for i in range(0, len(df_list_homer)):
-            merged_df.loc[i, 'Scaled HOMER'] = df_list_homer[i][category][df_list_homer[i]["Task"] == task + 1].sum()
+        if category == 'TotalObjectTranslation':
+            for i in range(0, len(df_list_touch)):
+                #Get "TotalTranslationXZ" and "TotalTranslationY"
+                total_translation_xz = df_list_touch[i]["TotalTranslationXZ"][df_list_touch[i]["Task"] == task + 1].sum()
+                total_translation_y = df_list_touch[i]["TotalTranslationY"][df_list_touch[i]["Task"] == task + 1].sum()
+
+                #Calculate the total translation
+                total_translation = np.sqrt(total_translation_xz**2 + total_translation_y**2)
+
+                #Put the total translation in the dataframe
+                merged_df.loc[i, 'SIT6'] = total_translation
+            
+            for i in range(0, len(df_list_homer)):
+                #Get "TotalTranslation" and put it in the dataframe
+                merged_df.loc[i, 'Scaled HOMER'] = df_list_homer[i]["TotalTranslation"][df_list_homer[i]["Task"] == task + 1].sum()  
+        elif category == 'TotalMovement':
+            for i in range(0, len(df_list_touch_frames)):
+                #Get "TouchPosition1" and "TouchPosition2" lines in this task and convert them to a list
+                touch_positions_1 = df_list_touch_frames[i]["TouchPosition1"][df_list_touch_frames[i]["Task"] == task + 1].tolist()
+                touch_positions_2 = df_list_touch_frames[i]["TouchPosition2"][df_list_touch_frames[i]["Task"] == task + 1].tolist()
+
+                #Get "State" line in this task and convert it to a list
+                state = df_list_touch_frames[i]["State"][df_list_touch_frames[i]["Task"] == task + 1].tolist()
+
+                merged_df.loc[i, 'SIT6'] = convert.get_total_touch_movement(touch_positions_1, touch_positions_2, state)
+
+            for i in range(0, len(df_list_homer_frames)):
+                #Get "ControllerPosition" line in this task and convert it to a list
+                controller_positions = df_list_homer_frames[i]["ControllerPosition"][df_list_homer_frames[i]["Task"] == task + 1].tolist()
+
+                merged_df.loc[i, 'Scaled HOMER'] = convert.get_total_homer_movement(controller_positions)
+
+        elif category == 'TotalTranslationMovement':
+            for i in range(0, len(df_list_touch_frames)):
+                #Get "TouchPosition1" and "TouchPosition2" lines in this task and convert them to a list
+                touch_positions_1 = df_list_touch_frames[i]["TouchPosition1"][df_list_touch_frames[i]["Task"] == task + 1].tolist()
+                touch_positions_2 = df_list_touch_frames[i]["TouchPosition2"][df_list_touch_frames[i]["Task"] == task + 1].tolist()
+
+                #Get "State" line in this task and convert it to a list
+                state = df_list_touch_frames[i]["State"][df_list_touch_frames[i]["Task"] == task + 1].tolist()
+
+                merged_df.loc[i, 'SIT6'] = convert.get_total_translation_touch_movement(touch_positions_1, touch_positions_2, state)
+
+            for i in range(0, len(df_list_homer_frames)):
+                #Get "ControllerPosition" line in this task and convert it to a list
+                controller_positions = df_list_homer_frames[i]["ControllerPosition"][df_list_homer_frames[i]["Task"] == task + 1].tolist()
+
+                merged_df.loc[i, 'Scaled HOMER'] = convert.get_total_homer_movement(controller_positions)
+        else:
+            # Iterate over each participant
+            for i in range(0, len(df_list_touch)):
+                #Get the cell value of the category and task and put it in the dataframe
+                merged_df.loc[i, 'SIT6'] = df_list_touch[i][category][df_list_touch[i]["Task"] == task + 1].sum()
+
+            for i in range(0, len(df_list_homer)):
+                merged_df.loc[i, 'Scaled HOMER'] = df_list_homer[i][category][df_list_homer[i]["Task"] == task + 1].sum()
 
     
+
         # Write the dataframe to the Excel file
         merged_df.to_excel(writer, sheet_name=category + " - T" + str(task + 1), index=False)
     
@@ -71,41 +124,3 @@ for category in categories:
 writer.save()
 
 
-
-
-#Touch dataframe has the format Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentChecking,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ
-# #Plot the all the times spent in task 1
-# def plot_task(df_list, task):
-#     time_spent = []
-#     for df in df_list:
-#         time_spent.append(df[df["Task"] == task]["Time"].sum())
-#     plt.hist(time_spent, bins=10)
-#     plt.title("Time spent in task " + str(task))
-#     plt.xlabel("Time spent (s)")
-#     plt.ylabel("Number of participants")
-#     plt.show()	
-
-
-# plot_task(df_list_touch, 1)
-# plot_task(df_list_homer, 1)
-
-# plot_task(df_list_touch, 2)
-# plot_task(df_list_homer, 2)
-
-# plot_task(df_list_touch, 3)
-# plot_task(df_list_homer, 3)
-
-# plot_task(df_list_touch, 4)
-# plot_task(df_list_homer, 4)
-
-# plot_task(df_list_touch, 5)
-# plot_task(df_list_homer, 5)
-
-# plot_task(df_list_touch, 6)
-# plot_task(df_list_homer, 6)
-
-# plot_task(df_list_touch, 7)
-# plot_task(df_list_homer, 7)
-
-# plot_task(df_list_touch, 8)
-# plot_task(df_list_homer, 8)
