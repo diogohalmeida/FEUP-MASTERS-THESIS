@@ -37,9 +37,7 @@ df_list_touch_frames = open_all_csv(1)
 df_list_homer = open_all_csv(2)
 df_list_homer_frames = open_all_csv(3)
 
-
 #Touch dataframe has the format Task,Time,DistanceMismatch,RotationMismatchX,RotationMismatchY,RotationMismatchZ,TimeSpentIdle,TimeSpentChecking,TimeSpentTranslationXZ,TimeSpentTranslationY,TimeSpentRotationX,TimeSpentRotationY,TimeSpentRotationZ,TotalTranslationXZ,TotalTranslationY,TotalRotationX,TotalRotationY,TotalRotationZ
- 
 #Plot the all the times spent in task 1
 def plot_task(df_list, task):
     time_spent = []
