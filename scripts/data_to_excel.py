@@ -62,7 +62,7 @@ for category in categories:
                 total_translation_y = df_list_touch[i]["TotalTranslationY"][df_list_touch[i]["Task"] == task + 1].sum()
 
                 #Calculate the total translation
-                total_translation = np.sqrt(total_translation_xz**2 + total_translation_y**2)
+                total_translation = total_translation_xz + total_translation_y
 
                 #Put the total translation in the dataframe
                 merged_df.loc[i, 'SIT6'] = total_translation
