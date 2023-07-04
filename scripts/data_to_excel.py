@@ -41,7 +41,7 @@ df_list_homer_frames = open_all_csv(3)
 
 
 # Define the categories you want to extract
-categories = ['Time', 'TimeSpentIdle', 'TotalObjectTranslation', 'TotalMovement', 'TotalTranslationMovement']
+categories = ['Time', 'TimeSpentIdle', 'ActiveTime', 'TotalObjectTranslation', 'TotalMovement', 'TotalTranslationMovement']
 
 # Create a new Excel file
 writer = pd.ExcelWriter('Output.xlsx')
@@ -103,6 +103,14 @@ for category in categories:
                 controller_positions = df_list_homer_frames[i]["ControllerPosition"][df_list_homer_frames[i]["Task"] == task + 1].tolist()
 
                 merged_df.loc[i, 'Scaled HOMER'] = convert.get_total_homer_movement(controller_positions)
+        elif category == 'ActiveTime':
+            for i in range(0, len(df_list_touch)):
+                #Get the time value of the task and subtract the time spent idle from it
+                merged_df.loc[i, 'SIT6'] = df_list_touch[i]['Time'][df_list_touch[i]["Task"] == task + 1].sum() - df_list_touch[i]['TimeSpentIdle'][df_list_touch[i]["Task"] == task + 1].sum()
+
+            for i in range(0, len(df_list_homer)):
+                #Get the time value of the task and subtract the time spent idle from it
+                merged_df.loc[i, 'Scaled HOMER'] = df_list_homer[i]['Time'][df_list_homer[i]["Task"] == task + 1].sum() - df_list_homer[i]['TimeSpentIdle'][df_list_homer[i]["Task"] == task + 1].sum()
         else:
             # Iterate over each participant
             for i in range(0, len(df_list_touch)):
